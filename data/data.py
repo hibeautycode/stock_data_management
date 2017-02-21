@@ -1,4 +1,4 @@
-import sys, os, time, threading
+import sys, os, time, threading, datetime
 sys.path.append( '../utils' )
 from utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
@@ -9,11 +9,23 @@ from multiprocessing import Queue, Process
 '''--------------- Data class ---------------'''
 class Data():
 
-	def __init__( self, date = '2017_02_20' ):
+	def __init__( self, date = None ):
 	
 		self.__date = date
 		if SAVE_DATA == 'xls':
-			self.__main_dir = '../data/data_' + self.__date
+			if self.__date is None:
+			# 如果没有date输入，找到最新的数据文件
+				file_date = datetime.date.today()	
+				self.__date = file_date.strftime( '%Y_%m_%d' )
+				self.__main_dir = '../data/data_' + self.__date
+
+				while not os.path.exists( self.__main_dir ):
+					file_date -= datetime.timedelta( days = 1 )
+					self.__date = file_date.strftime( '%Y_%m_%d' )
+					self.__main_dir = '../data/data_' + self.__date
+			else:
+				self.__main_dir = '../data/data_' + self.__date
+
 			self.__basics_file_name = self.__main_dir + '/stock_basics.xlsx'
 			self.__quarter_report_file_name = self.__main_dir + '/stock_quarter_report.xlsx'
 			self.__profit_file_name = self.__main_dir + '/stock_profit.xlsx'
@@ -38,7 +50,7 @@ class Data():
 			try:
 				df_stock_basics = ts.get_stock_basics()	
 			except:
-				ERROR( 'exception occurs when update quarter report data of year {0} quarter {1}'.format( year, quarter ) )
+				ERROR( 'exception occurs when update stock_basics' )
 			else:
 				LOG( 'update basics data' )
 				Utils.save_data( df_stock_basics, self.__basics_file_name, 'stock basics' )
@@ -305,7 +317,7 @@ class Data():
 			df_divi_data = pd.DataFrame()
 			thread_queue = Queue()
 			list_threads = []
-			for year in range( 2002, int( cur_year ) + 1 ):
+			for year in range( 2002, int( Utils.cur_date().split('_')[ 0 ] ) + 1 ):
 				list_threads.append( threading.Thread( target = download_divi_data, \
 					args=( self, year, num_stock ) ) )
 			
@@ -421,12 +433,6 @@ class Data():
 
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
-
-	time_start = time.time()
-		
-	cur_date = time.strftime( '%Y_%m_%d',time.localtime( time.time() ) )		
-	Data( cur_date ).update_all()
-		
-	time_end = time.time()
-	print( 'consume time:{:.2f} minutes'.format( ( time_end - time_start ) / 60 ) )
 	
+	Data( Utils.cur_date() ).update_all()
+		

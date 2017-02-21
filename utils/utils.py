@@ -1,5 +1,5 @@
 import pandas as pd
-import sys, os, re, time
+import sys, os, re, time, datetime
 from functools import wraps
 
 from email import encoders
@@ -10,7 +10,7 @@ import smtplib
 
 '''--------------- switch definition ---------------'''
 SAVE_DATA = 'xls'
-SHOW_LOG = True
+SHOW_LOG = False
 SHOW_ERROR = True
 SEND_EMAIL = True
 
@@ -35,7 +35,18 @@ class Utils():
 		quarter = int( ( int( list_res[1] ) - 1 ) / 3 + 1 )	
 		list_res.append( quarter )		
 		return list_res
-		
+	
+	def cur_date():
+
+		return datetime.date.today().strftime( '%Y_%m_%d' )
+
+	def last_date():
+
+		return ( datetime.date.today() - datetime.timedelta( days = 1 ) ).strftime( '%Y_%m_%d' )
+
+	def cur_time():
+
+		return time.strftime('%H:%M:%S',time.localtime( time.time() )  )
 
 	def send_email( content ):
 
