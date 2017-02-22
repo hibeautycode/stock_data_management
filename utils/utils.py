@@ -10,7 +10,7 @@ import smtplib
 
 '''--------------- switch definition ---------------'''
 SAVE_DATA = 'xls'
-SHOW_LOG = False
+SHOW_LOG = True
 SHOW_ERROR = True
 SEND_EMAIL = True
 
@@ -48,7 +48,7 @@ class Utils():
 
 		return time.strftime('%H:%M:%S',time.localtime( time.time() )  )
 
-	def send_email( content ):
+	def send_email( content, header = 'stock notification' ):
 
 		def _format_addr( s ):
 			name, addr = parseaddr( s )
@@ -62,7 +62,7 @@ class Utils():
 		msg = MIMEText( content, 'plain', 'utf-8' )
 		msg['From'] = _format_addr( 'abel <%s>' % from_addr )
 		msg['To'] = _format_addr( 'qiyubi <%s>' % to_addr )
-		msg['Subject'] = Header( 'stock notification', 'utf-8' ).encode()
+		msg['Subject'] = Header( header, 'utf-8' ).encode()
 
 		server = smtplib.SMTP( smtp_server, 25 )
 		#server.set_debuglevel( 1 )

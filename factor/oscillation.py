@@ -1,10 +1,9 @@
-import sys
+import sys, os
 sys.path.append( '../data' )
 sys.path.append( '../utils' )
 from data import Data
-from utils import Utils
+from utils import Utils, LOG, ERROR
 import tushare as ts
-import os, time
 import pandas as pd
 
 class Oscillation():
@@ -20,7 +19,7 @@ class Oscillation():
 		elif self.mode == 'elastic_interval':
 			self.calc_head_to_start_or_end = head_to_start_or_end		# 股票震荡计算开始日距start天数(head_to_start)
 		else:
-			print( 'init mode error' )
+			ERROR( 'init mode error' )
 		
 		self.calc_end_to_tail = end_to_tail		# 股票震荡计算end距tail天数
 		self.threshold_min_market_days = threshold_market_days + head_to_start_or_end + end_to_tail	# 股票上市天数阈值			
@@ -57,6 +56,7 @@ class Oscillation():
 				
 		return count_oscillation
 	
+	@Utils.func_timer
 	def save_oscillation_strength_to_db( self, method = '1' ): 
 		# method = 1:calc_oscillation_strength_by_meet_aptitude_days
 		# method = 2:calc_oscillation_strength_by_aptitude_expectation
@@ -79,7 +79,7 @@ class Oscillation():
 			end_date = Data().get_k_line_date_by_reverse_days( code, self.calc_end_to_tail + 1 )
 			
 			df.loc[i] = [ code, name, aptitude, start_date, end_date ]
-			print( 'analyse_oscillation {0} {1:4d}/{2:4d} '.format( code, i + 1, num_stock ) )
+			LOG( 'analyse_oscillation {0} {1:4d}/{2:4d} '.format( code, i + 1, num_stock ) )
 			
 		if not os.path.exists( self.path_result ):
 			os.mkdir( self.path_result )
@@ -89,12 +89,4 @@ class Oscillation():
 
 if __name__ == '__main__':
 	
-	time_start = time.time()
-		
 	Oscillation().save_oscillation_strength_to_db()
-	
-	time_end = time.time()
-	print( 'consume time:{:.2f} seconds'.format( time_end - time_start ) )
-
-	
-	

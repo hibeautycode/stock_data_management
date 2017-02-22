@@ -1,8 +1,10 @@
 import sys, os, threading, re
 sys.path.append( '../data' )
 sys.path.append( '../utils' )
+sys.path.append( '../trade' )
 from data import Data
 from utils import Utils, SAVE_DATA, LOG, ERROR, SEND_EMAIL
+from trade import Position
 from pandas import DataFrame, Series
 from numpy import arange
 from multiprocessing import Queue, Process
@@ -231,7 +233,7 @@ class Analyse():
 		self.analyse_spill_wave_file = self.analyse_result_path + 'spill_wave_' + str( self.min_descend_rate ) + '_' \
 							+ str( self.descend_rate_interval_len ) + '_' + str( self.max_last_days ) + '_' + \
 							str( self.num_refer_pre_days ) + '_' + str( self.rate_price2_higher_than_min ) + '.xls'
-		self.df_value_stock = DataFrame( columns = ( 'code', 'name', 'buy_price', 'sell_prece', 'descend_rate', \
+		self.df_value_stock = DataFrame( columns = ( 'code', 'name', 'buy_price', 'sell_price', 'descend_rate', \
 												'growth_rate', 'expect_earn_rate', 'min_earn_rate', 'variance_earn_rate' ) )
 		self.num_refer_pre_days = 60
 		self.rate_price0_higher_than_min = 0.2
@@ -388,9 +390,9 @@ class Analyse():
 				name = df_stock_basics['name'][i]
 				mutex_lock_stock_num.acquire()
 				self.num_check_stock += 1
-				mutex_lock_stock_num.release()
 				LOG( 'pid-{4} {3} check {0} ? value stock {1:4d}/{2:4d} '.\
 					format( code, self.num_check_stock, num_stock, threading.current_thread().getName(), os.getpid() ) )
+				mutex_lock_stock_num.release()
 				self.append_value_stock( code, name, mutex_lock_df_value_stock )
 		
 		df_tmp_stock_basics = Data().get_stock_basics()
@@ -426,11 +428,11 @@ class Analyse():
 			minute = int( cur_time.split( ':' )[ 1 ] )
 			
 			if hour < 9 or ( hour == 9 and minute < 30 ) or ( hour == 11 and minute >= 30 ) or hour == 12:
-				LOG( 'market not open' )
+				LOG( 'market not open from notify_investment_opportunity' )
 				sleep( 60 )
 				continue
 			elif hour >= 15:
-				LOG( 'market close' )
+				LOG( 'market close from notify_investment_opportunity' )
 				break
 			content_notify = ''
 			LOG( '*********************************' )
@@ -459,7 +461,7 @@ class Analyse():
 			LOG( '*********************************' )
 			if SEND_EMAIL:
 			# 如果发送邮件，10分钟发一次
-				Utils.send_email( content_notify )
+				Utils.send_email( content_notify, 'opportunity notification' )
 				sleep( 10 * 60 )
 			else:
 				sleep( 120 )
@@ -478,6 +480,13 @@ if __name__ == '__main__':
 		#analyse_class.train()
 		analyse_class.find_value_stock()
 		
-	analyse_class.notify_investment_opportunity()
+	list_process = []
+	list_process.append( Process( target = analyse_class.notify_investment_opportunity ) )
+	list_process.append( Process( target = Position().notify_realtime_earnings ) )
+	
+	for process in list_process:
+		process.start()
+	for process in list_process:
+		process.join()
 	
 	
