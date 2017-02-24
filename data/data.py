@@ -3,6 +3,7 @@ sys.path.append( '../utils' )
 from utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
 import pandas as pd
+import numpy as np
 #wmcloud pw qingxue@1990
 from multiprocessing import Queue, Process
 
@@ -41,7 +42,32 @@ class Data():
 	
 	'''--------------- stock fundamental data ---------------'''
 	def get_realtime_quotes( self, code ):
-	
+	# 返回值：
+	# 0：name，股票名字
+	# 1：open，今日开盘价
+	# 2：pre_close，昨日收盘价
+	# 3：price，当前价格
+	# 4：high，今日最高价
+	# 5：low，今日最低价
+	# 6：bid，竞买价，即“买一”报价
+	# 7：ask，竞卖价，即“卖一”报价
+	# 8：volume，成交量 maybe you need do volume/100
+	# 9：amount，成交金额（元 CNY）
+	# 10：b1_v，委买一（笔数 bid volume）
+	# 11：b1_p，委买一（价格 bid price）
+	# 12：b2_v，“买二”
+	# 13：b2_p，“买二”
+	# 14：b3_v，“买三”
+	# 15：b3_p，“买三”
+	# 16：b4_v，“买四”
+	# 17：b4_p，“买四”
+	# 18：b5_v，“买五”
+	# 19：b5_p，“买五”
+	# 20：a1_v，委卖一（笔数 ask volume）
+	# 21：a1_p，委卖一（价格 ask price）
+	# ...
+	# 30：date，日期；
+	# 31：time，时间；
 		return ts.get_realtime_quotes( code )
 		
 	def update_stock_basics( self ):
@@ -56,7 +82,30 @@ class Data():
 				Utils.save_data( df_stock_basics, self.__basics_file_name, 'stock basics' )
 	
 	def get_stock_basics( self ):
-		
+	# 返回值：
+	# code,代码
+	# name,名称
+	# industry,所属行业
+	# area,地区
+	# pe,市盈率
+	# outstanding,流通股本(亿)
+	# totals,总股本(亿)
+	# totalAssets,总资产(万) = 净资产 + 负债 = （ 股东权益 + 少数股东权益 ） + 负债
+	# liquidAssets,流动资产
+	# fixedAssets,固定资产
+	# reserved,公积金
+	# reservedPerShare,每股公积金
+	# esp,每股收益
+	# bvps,每股净资产 = （ 股东权益 + 少数股东权益 ） / 总股本
+	# pb,市净率 = 股价 / 每股净资产
+	# timeToMarket,上市日期
+	# undp,未分利润
+	# perundp, 每股未分配
+	# rev,收入同比(%)
+	# profit,利润同比(%)
+	# gpr,毛利率(%)
+	# npr,净利润率(%)
+	# holders,股东人数	
 		if os.path.exists( self.__basics_file_name ):
 			return Utils.read_data( self.__basics_file_name )
 		else:
@@ -86,6 +135,18 @@ class Data():
 			Utils.save_data( df_quarter_report_data, self.__quarter_report_file_name, 'quarter report' )
 	
 	def get_quarter_report_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# esp,每股收益
+	# eps_yoy,每股收益同比(%)
+	# bvps,每股净资产
+	# roe,净资产收益率(%)
+	# epcf,每股现金流量(元)
+	# net_profits,净利润(万元)
+	# profits_yoy,净利润同比(%)
+	# distrib,分配方案
+	# report_date,发布日期
 		if os.path.exists( self.__quarter_report_file_name ):
 			return Utils.read_data( self.__quarter_report_file_name )
 		else:
@@ -112,10 +173,20 @@ class Data():
 						df_profit_data = df_profit_data.append( df_tmp )
 						LOG( 'update profit data of year {0} quarter {1}'.format( year, quarter ) )
 			# 解决 ts.get_growth_data() 拿不到数据时一直等待的问题
-			self.update_growth_data()
+			#self.update_growth_data()
 			Utils.save_data( df_profit_data, self.__profit_file_name, 'quarter report' )
 	
 	def get_profit_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# roe,净资产收益率(%)
+	# net_profit_ratio,净利率(%)
+	# gross_profit_rate,毛利率(%)
+	# net_profits,净利润(万元)
+	# eps,每股收益
+	# business_income,营业收入(百万元)
+	# bips,每股主营业务收入(元)
 		if os.path.exists( self.__profit_file_name ):
 			return Utils.read_data( self.__profit_file_name )
 		else:
@@ -144,6 +215,15 @@ class Data():
 			Utils.save_data( df_operation_data, self.__operation_file_name, 'operation' )
 	
 	def get_operation_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# arturnover,应收账款周转率(次)
+	# arturndays,应收账款周转天数(天)
+	# inventory_turnover,存货周转率(次)
+	# inventory_days,存货周转天数(天)
+	# currentasset_turnover,流动资产周转率(次)
+	# currentasset_days,流动资产周转天数(天)
 		if os.path.exists( self.__operation_file_name ):
 			return Utils.read_data( self.__operation_file_name )
 		else:
@@ -172,6 +252,15 @@ class Data():
 			Utils.save_data( df_growth_data, self.__growth_file_name, 'growth' )
 	
 	def get_growth_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# mbrg,主营业务收入增长率(%)
+	# nprg,净利润增长率(%)
+	# nav,净资产增长率
+	# targ,总资产增长率
+	# epsg,每股收益增长率
+	# seg,股东权益增长率
 		if os.path.exists( self.__growth_file_name ):
 			return Utils.read_data( self.__growth_file_name )
 		else:
@@ -200,6 +289,15 @@ class Data():
 			Utils.save_data( df_debtpaying_data, self.__debtpaying_file_name, 'debtpaying' )
 	
 	def get_debtpaying_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# currentratio,流动比率 = 流动资产 / 流动负债 ( 一般高于2 )
+	# quickratio,速动比率 = 速动资产 / 流动负债
+	# cashratio,现金比率
+	# icratio,利息支付倍数 = 税息前利润 / 利息费用 ( 一般高于1.5 )
+	# sheqratio,股东权益比率 = 股东权益总额 / 资产总额 ( 高于0.6 )
+	# adratio,股东权益增长率
 		if os.path.exists( self.__debtpaying_file_name ):
 			return Utils.read_data( self.__debtpaying_file_name )
 		else:
@@ -228,6 +326,13 @@ class Data():
 			Utils.save_data( df_cashflow_data, self.__cashflow_file_name, 'cashflow' )
 	
 	def get_cashflow_data( self ):
+	# code,代码
+	# name,名称
+	# cf_sales,经营现金净流量对销售收入比率
+	# rateofreturn,资产的经营现金流量回报率
+	# cf_nm,经营现金净流量与净利润的比率
+	# cf_liabilities,经营现金净流量对负债比率
+	# cashflowratio,现金流量比率
 		if os.path.exists( self.__cashflow_file_name ):
 			return Utils.read_data( self.__cashflow_file_name )
 		else:
@@ -247,7 +352,7 @@ class Data():
 					try:
 						df_k_line_data = ts.get_k_data( code, ktype = 'D', autype = 'qfq' )
 					except:
-						ERROR( 'exception occurs when update quarter report data of year {0} quarter {1}'.format( year, quarter ) )
+						ERROR( 'exception occurs when update k_line data {0}'.format( code ) )
 					else:
 						LOG( '{3} update {0} k_line data {1:4d}/{2:4d} '.format( code, i + 1, num_stock, threading.current_thread().getName() ) )
 						Utils.save_data( df_k_line_data, cur_k_line_file, code )
@@ -330,6 +435,13 @@ class Data():
 			Utils.save_data( df_divi_data, self.__divi_file_name, 'divi data' )
 	
 	def get_divi_data( self ):
+	# 返回值：
+	# code:股票代码
+	# name:股票名称
+	# year:分配年份
+	# report_date:公布日期
+	# divi:分红金额（每10股）
+	# shares:转增和送股数（每10股）
 		if os.path.exists( self.__divi_file_name ):
 			return Utils.read_data( self.__divi_file_name )
 		else:
@@ -355,6 +467,13 @@ class Data():
 			Utils.save_data( df_forcast_quarter_report_data, self.__forcast_quarter_report_file_name, 'forcast quarter report' )
 	
 	def get_forcast_quarter_report_data( self ):
+	# 返回值：
+	# code,代码
+	# name,名称
+	# type,业绩变动类型【预增、预亏等】
+	# report_date,发布日期
+	# pre_eps,上年同期每股收益
+	# range,业绩变动范围
 		if os.path.exists( self.__forcast_quarter_report_file_name ):
 			return Utils.read_data( self.__forcast_quarter_report_file_name )
 		else:
@@ -381,6 +500,12 @@ class Data():
 			Utils.save_data( df_restrict_stock_data, self.__restrict_stock_file_name, 'restrict stock' )
 			
 	def get_restrict_stock_data( self ):
+	# 返回值：
+	# code：股票代码
+	# name：股票名称
+	# date:解禁日期
+	# count:解禁数量（万股）
+	# ratio:占总盘比率
 		if os.path.exists( self.__restrict_stock_file_name ):
 			return Utils.read_data( self.__restrict_stock_file_name )
 		else:
@@ -400,6 +525,10 @@ class Data():
 				Utils.save_data( df_concept_classified, self.__concept_classified_file_name, 'concept classified' )	
 	
 	def get_concept_classified_data( self ):
+	# 返回值：
+	# code：股票代码
+	# name：股票名称
+	# c_name：概念名称
 		if os.path.exists( self.__concept_classified_file_name ):
 			return Utils.read_data( self.__concept_classified_file_name )
 		else:
@@ -417,6 +546,7 @@ class Data():
 		list_process = []		
 		list_process.append( Process( target = self.update_quarter_report_data ) )
 		list_process.append( Process( target = self.update_profit_data ) ) # include update_growth_data
+		list_process.append( Process( target = self.update_growth_data ) )
 		list_process.append( Process( target = self.update_operation_data ) )
 		list_process.append( Process( target = self.update_debtpaying_data ) )
 		list_process.append( Process( target = self.update_cashflow_data ) )
@@ -429,10 +559,138 @@ class Data():
 		for process in list_process:
 			process.start()
 		for process in list_process:
-			process.join()		
+			process.join()	
+	'''--------------- custom query func ---------------'''	
+	@Utils.func_timer
+	def get_all_stock_data( self ):
 
+		df_stock_basics = self.get_stock_basics()
+		df_stock_basics = df_stock_basics.set_index( 'code' )
+
+		df_quarter_report_data = self.get_quarter_report_data()
+		df_quarter_report_data = df_quarter_report_data.set_index( 'code' )
+
+		df_profit_data = self.get_profit_data()
+		df_profit_data = df_profit_data.set_index( 'code' )
+		
+		df_operation_data = self.get_operation_data()
+		df_operation_data = df_operation_data.set_index( 'code' )
+		
+		df_growth_data = self.get_growth_data()
+		df_growth_data = df_growth_data.set_index( 'code' )
+		
+		df_debtpaying_data = self.get_debtpaying_data()
+		df_debtpaying_data = df_debtpaying_data.set_index( 'code' )
+		
+		df_cashflow_data = self.get_cashflow_data()
+		df_cashflow_data = df_cashflow_data.set_index( 'code' )
+		
+		df_divi_data = self.get_divi_data()
+		df_divi_data = df_divi_data.set_index( 'code' )
+		
+		df_forcast_quarter_report_data = self.get_forcast_quarter_report_data()
+		df_forcast_quarter_report_data = df_forcast_quarter_report_data.set_index( 'code' )
+
+		df_restrict_stock_data = self.get_restrict_stock_data()
+		df_restrict_stock_data = df_restrict_stock_data.set_index( 'code' )
+		
+		df_concept_classified = self.get_concept_classified_data()
+		df_concept_classified = df_concept_classified.set_index( 'code' )
+
+		return [ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
+				df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ]
+
+	@Utils.func_timer
+	def query_stock_info( self, code ):
+
+		[ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
+			df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ] = \
+			self.get_all_stock_data()
+		content = ''
+		space = lambda x : ' ' * x # 方便区分不同季度数据		
+		try:
+			basics = df_stock_basics.loc[ int( code ) ]
+			cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
+
+			content += 'basics:\n上市日期：{0}\n所属行业：{1}\n地区：{2}\n市盈率(动态)：{3}\n市盈率(静态)：{4:.2f}\n市净率：{5}\n'\
+				.format( basics[ 'timeToMarket' ], basics[ 'industry' ], basics[ 'area' ], basics[ 'pe' ], \
+						cur_price / float( basics[ 'esp' ] ), float( basics[ 'pb' ] ) )
+			content += '每股公积金：{0}\n每股未分配利润：{1}\n'\
+				.format( basics[ 'reservedPerShare' ], basics[ 'perundp' ] )
+			content += '总市值：{0:.2f} 亿元\n流动市值：{1:.2f} 亿元\n'\
+				.format( cur_price * float( basics[ 'totals' ] ), cur_price * float( basics[ 'outstanding' ] ) )
+			content += '总资产：{0:.2f} 亿元\n固定资产：{1:.2f} 亿元\n流动资产：{2:.2f} 亿元\n'\
+				.format( float( basics[ 'totalAssets' ] ) / 10000, float( basics[ 'fixedAssets' ] ) / 10000, \
+						float( basics[ 'liquidAssets' ] ) / 10000 )
+		except: pass
+
+		try:
+			concept = df_concept_classified.loc[ int( code ) ]
+
+			content += '\nconcept:\n'
+			for id in range( concept.index.size ):
+				content += '{0}\n'.format( concept.iloc[ id ][ 'c_name' ] )
+		except: pass
+
+		try: 
+			profit = df_profit_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+			content += '\nprofit:\n年份   季度  净资产收益率  净利润（万元）  每股收益（元）\n'
+			for id in range( profit.index.size ):
+				content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
+						profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profit_ratio' ], profit.iloc[ id ][ 'eps' ], \
+						space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ) )
+		except: pass
+
+		try: 
+			operation = df_operation_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+			content += '\noperation:\n年份   季度  应收账款周转天数  存货周转天数  流动资产周转天数\n'
+			
+			for id in range( operation.index.size ):
+				content += '{5}{0}  {1}  {2:-16.2f}     {3:-8.2f}     {4:-15.2f}\n'.format( operation.iloc[ id ][ 'year' ], \
+					operation.iloc[ id ][ 'quarter' ],operation.iloc[ id ][ 'arturndays' ], operation.iloc[ id ][ 'inventory_days' ], \
+					operation.iloc[ id ][ 'currentasset_days' ], space( int( operation.iloc[ id ][ 'quarter' ] ) - 1 ) )
+		except: pass
+			
+		try:		
+			debtpaying = df_debtpaying_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+			content += '\ndebtpaying:\n年份   季度  流动比率  利息支付倍数  股东权益比率  股东权益增长率\n'
+
+			for col in [ 'currentratio', 'icratio', 'sheqratio', 'adratio' ]:
+				for id in range( debtpaying.index.size ):
+					try:
+						float( debtpaying[ col ].iloc[ id ] )
+					except:
+						debtpaying[ col ].iloc[ id ] = np.nan
+			
+			for id in range( debtpaying.index.size ):
+					content += '{5}{0}  {1}  {2:-8.2f}   {3:-12.2f}   {4:-12.2f}   {6:-12.2f}\n'.format( debtpaying.iloc[ id ][ 'year' ], \
+						debtpaying.iloc[ id ][ 'quarter' ], float( debtpaying.iloc[ id ][ 'currentratio' ] ), float( debtpaying.iloc[ id ][ 'icratio' ] ), \
+						float( debtpaying.iloc[ id ][ 'sheqratio' ] ), space( int( debtpaying.iloc[ id ][ 'quarter' ] ) - 1 ), \
+						float( debtpaying.iloc[ id ][ 'adratio' ] ) )
+		except: pass
+
+		# try: print( 'cashflow:\n',df_cashflow_data.loc[ int( code ) ].sort_values( \
+		# 								by = [ 'year', 'quarter' ], axis = 0, ascending = True ) )
+			# cf_sales,经营现金净流量对销售收入比率
+			# rateofreturn,资产的经营现金流量回报率
+			# cf_nm,经营现金净流量与净利润的比率
+			# cf_liabilities,经营现金净流量对负债比率
+			# cashflowratio,现金流量比率
+		# except: pass
+		# try: print( 'divi:\n',df_divi_data.loc[ int( code ) ].sort_values( \
+		# 								by = 'year', axis = 0, ascending = True ) )
+		# except: pass
+		# try: print( 'forcast quarter report:\n',df_forcast_quarter_report_data.loc[ int( code ) ] )
+		# except: pass
+		# try: print( 'restrict stock data:\n',df_restrict_stock_data.loc[ int( code ) ].sort_values( \
+		# 								by = 'date', axis = 0, ascending = True ) )
+		# except: pass
+
+		print( content )
+					
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
 	
-	Data( Utils.cur_date() ).update_all()
-		
+	# Data( Utils.cur_date() ).update_all()
+	code = '300299'
+	Data().query_stock_info( code )

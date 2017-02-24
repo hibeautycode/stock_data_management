@@ -3,23 +3,32 @@ sys.path.append( '../data' )
 sys.path.append( '../utils' )
 from data import Data
 from utils import Utils, LOG, ERROR, SEND_EMAIL
+from pandas import DataFrame
 from time import sleep
 
 class Position():
+# 持仓类
 
 	def __init__( self ):
 
 		self.__file_path_position = '../trade/data/position.xlsx'
 
 	def notify_realtime_earnings( self ):
-
-		if os.path.exists( self.__file_path_position ):
-			df_position = Utils.read_data( self.__file_path_position )
-		else:
-			ERROR( 'file {0} not exists.'.format( self.__file_path_position ) )
-			return
+	# 实时持仓盈亏检测通知
 
 		while True:
+
+			df_position = DataFrame()
+			if os.path.exists( self.__file_path_position ):
+				try:
+					df_position = Utils.read_data( self.__file_path_position )
+				except:
+				# 可能在修改文件，等一分钟
+					sleep( 60 )
+					continue
+			else:
+				ERROR( 'file {0} not exists.'.format( self.__file_path_position ) )
+				return
 		
 			cur_time = Utils.cur_time()
 			hour = int( cur_time.split( ':' )[ 0 ] )
@@ -49,14 +58,15 @@ class Position():
 					earn = ( cur_price - buy_price ) * position
 					total_earn += earn
 
-					content_notify += '-{0} {1} cur_price:{2:.2f} buy_price:{3:.2f} sell_price:{4:.2f} position:{5} earn:{6:.2f}\n'\
-					.format( code, name, cur_price, buy_price, float( df_position.loc[ index ][ 'sell_price' ] ), position, earn)
+					content_notify += '-{0} {1} cur:{2:.2f} cost:{3:.2f} sell:{4:.2f} position:{5} earn:{6:.2f}\n'\
+						.format( code, name, cur_price, buy_price, float( df_position.loc[ index ][ 'sell_price' ] ), position, earn)
 					
 				except:
 					pass
 			content_notify += 'total_earn:{0:.2f}'.format( total_earn )
 			Utils.send_email( content_notify, 'position notification' )
 			LOG( 'notify position.')
+			LOG( df_position )
 			sleep( 600 )
 
 if __name__ == '__main__':
