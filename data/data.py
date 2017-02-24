@@ -663,27 +663,38 @@ class Data():
 						debtpaying[ col ].iloc[ id ] = np.nan
 			
 			for id in range( debtpaying.index.size ):
-					content += '{5}{0}  {1}  {2:-8.2f}   {3:-12.2f}   {4:-12.2f}   {6:-12.2f}\n'.format( debtpaying.iloc[ id ][ 'year' ], \
+					content += '{5}{0}  {1}  {2:-8.2f}   {3:-12.2f}   {4:-10.2f}   {6:-14.2f}\n'.format( debtpaying.iloc[ id ][ 'year' ], \
 						debtpaying.iloc[ id ][ 'quarter' ], float( debtpaying.iloc[ id ][ 'currentratio' ] ), float( debtpaying.iloc[ id ][ 'icratio' ] ), \
 						float( debtpaying.iloc[ id ][ 'sheqratio' ] ), space( int( debtpaying.iloc[ id ][ 'quarter' ] ) - 1 ), \
 						float( debtpaying.iloc[ id ][ 'adratio' ] ) )
 		except: pass
 
-		# try: print( 'cashflow:\n',df_cashflow_data.loc[ int( code ) ].sort_values( \
-		# 								by = [ 'year', 'quarter' ], axis = 0, ascending = True ) )
-			# cf_sales,经营现金净流量对销售收入比率
-			# rateofreturn,资产的经营现金流量回报率
-			# cf_nm,经营现金净流量与净利润的比率
-			# cf_liabilities,经营现金净流量对负债比率
-			# cashflowratio,现金流量比率
-		# except: pass
-		# try: print( 'divi:\n',df_divi_data.loc[ int( code ) ].sort_values( \
-		# 								by = 'year', axis = 0, ascending = True ) )
-		# except: pass
-		# try: print( 'forcast quarter report:\n',df_forcast_quarter_report_data.loc[ int( code ) ] )
-		# except: pass
-		# try: print( 'restrict stock data:\n',df_restrict_stock_data.loc[ int( code ) ].sort_values( \
-		# 								by = 'date', axis = 0, ascending = True ) )
+		try: 
+			divi = df_divi_data.loc[ int( code ) ].sort_values( by = 'year', axis = 0, ascending = True )
+			content += '\ndivision:\n年份    公布日期  分红金额(每10股)  转增股数(每10股)\n'
+
+			for id in range( divi.index.size ):
+				content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
+					int( divi.iloc[ id ][ 'shares' ] ) )
+		except: pass
+
+		try:
+			focast_quarter_data = df_forcast_quarter_report_data.loc[ int( code ) ].sort_values( by = 'report_date', axis = 0, ascending = True )
+			content += '\nforcast quarter report:\n发布日期    业绩变动类型  上年同期每股收益  业绩变动范围\n'
+
+			for id in range( focast_quarter_data.index.size ):
+				content += '{0}  {1:>8s}  {2:-14.2f}  {3:>12s}\n'.format( focast_quarter_data.iloc[ id ][ 'report_date' ], \
+					focast_quarter_data.iloc[ id ][ 'type' ], float( focast_quarter_data.iloc[ id ][ 'pre_eps' ] ), \
+					focast_quarter_data.iloc[ id ][ 'range' ] )
+		except: pass
+
+		# try:
+		restrict = df_restrict_stock_data.loc[ int( code ) ].sort_values( by = 'date', axis = 0, ascending = True )
+		content += '\nrestrict:\n解禁日期    解禁数量（万股）  占总盘比率\n'
+
+		for id in range( restrict.index.size ):
+			content += '{0}  {1:-12.2f}  {2:-10.2f}\n'.format( restrict.iloc[ id ][ 'date' ], \
+					float( restrict.iloc[ id ][ 'count' ] ), float( restrict.iloc[ id ][ 'ratio' ] ) )
 		# except: pass
 
 		print( content )
