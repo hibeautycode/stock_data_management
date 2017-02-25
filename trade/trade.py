@@ -13,6 +13,24 @@ class Position():
 
 		self.__file_path_position = '../trade/data/position.xlsx'
 
+	def serve_query_request( self ):
+
+		while True:
+
+			ls_code = Utils.receive_email_query_code()
+
+			LOG( 'ls_code:{0}'.format( ls_code ) )
+			
+			dict_stock_info = Data().query_stock_info( ls_code )
+
+			for ( code, info ) in dict_stock_info.items():
+				Utils.send_email( info, 'stock info ' + code )
+			LOG( 'send email stock info' )
+
+			# 每10分钟查一次邮箱是否有查询
+			sleep( 600 )
+
+
 	def notify_realtime_earnings( self ):
 	# 实时持仓盈亏检测通知
 
@@ -71,4 +89,6 @@ class Position():
 
 if __name__ == '__main__':
 
-	Position().notify_realtime_earnings()
+	# Position().notify_realtime_earnings()
+	Position().serve_query_request()
+	

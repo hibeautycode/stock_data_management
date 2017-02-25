@@ -601,107 +601,113 @@ class Data():
 				df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ]
 
 	@Utils.func_timer
-	def query_stock_info( self, code ):
+	def query_stock_info( self, ls_code ):
 
 		[ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
 			df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ] = \
 			self.get_all_stock_data()
-		content = ''
-		space = lambda x : ' ' * x # 方便区分不同季度数据		
-		try:
-			basics = df_stock_basics.loc[ int( code ) ]
-			cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
+		
+		space = lambda x : ' ' * x # 方便区分不同季度数据	
+		pd.options.mode.chained_assignment = None  # 不显示warn信息 default='warn'
+		dict_stock_info = {}
 
-			content += 'basics:\n上市日期：{0}\n所属行业：{1}\n地区：{2}\n市盈率(动态)：{3}\n市盈率(静态)：{4:.2f}\n市净率：{5}\n'\
-				.format( basics[ 'timeToMarket' ], basics[ 'industry' ], basics[ 'area' ], basics[ 'pe' ], \
-						cur_price / float( basics[ 'esp' ] ), float( basics[ 'pb' ] ) )
-			content += '每股公积金：{0}\n每股未分配利润：{1}\n'\
-				.format( basics[ 'reservedPerShare' ], basics[ 'perundp' ] )
-			content += '总市值：{0:.2f} 亿元\n流动市值：{1:.2f} 亿元\n'\
-				.format( cur_price * float( basics[ 'totals' ] ), cur_price * float( basics[ 'outstanding' ] ) )
-			content += '总资产：{0:.2f} 亿元\n固定资产：{1:.2f} 亿元\n流动资产：{2:.2f} 亿元\n'\
-				.format( float( basics[ 'totalAssets' ] ) / 10000, float( basics[ 'fixedAssets' ] ) / 10000, \
-						float( basics[ 'liquidAssets' ] ) / 10000 )
-		except: pass
+		for code in ls_code:
 
-		try:
-			concept = df_concept_classified.loc[ int( code ) ]
+			content = '\n{0}\n'.format( code )
+			try:
+				basics = df_stock_basics.loc[ int( code ) ]
+				cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
 
-			content += '\nconcept:\n'
-			for id in range( concept.index.size ):
-				content += '{0}\n'.format( concept.iloc[ id ][ 'c_name' ] )
-		except: pass
+				content += '\nbasics:\n上市日期：{0}\n所属行业：{1}\n地区：{2}\n市盈率(动态)：{3}\n市盈率(静态)：{4:.2f}\n市净率：{5}\n'\
+					.format( basics[ 'timeToMarket' ], basics[ 'industry' ], basics[ 'area' ], basics[ 'pe' ], \
+							cur_price / float( basics[ 'esp' ] ), float( basics[ 'pb' ] ) )
+				content += '每股公积金：{0}\n每股未分配利润：{1}\n'\
+					.format( basics[ 'reservedPerShare' ], basics[ 'perundp' ] )
+				content += '总市值：{0:.2f} 亿元\n流动市值：{1:.2f} 亿元\n'\
+					.format( cur_price * float( basics[ 'totals' ] ), cur_price * float( basics[ 'outstanding' ] ) )
+				content += '总资产：{0:.2f} 亿元\n固定资产：{1:.2f} 亿元\n流动资产：{2:.2f} 亿元\n'\
+					.format( float( basics[ 'totalAssets' ] ) / 10000, float( basics[ 'fixedAssets' ] ) / 10000, \
+							float( basics[ 'liquidAssets' ] ) / 10000 )
+			except: pass
 
-		try: 
-			profit = df_profit_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
-			content += '\nprofit:\n年份   季度  净资产收益率  净利润（万元）  每股收益（元）\n'
-			for id in range( profit.index.size ):
-				content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
-						profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profit_ratio' ], profit.iloc[ id ][ 'eps' ], \
-						space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ) )
-		except: pass
+			try:
+				concept = df_concept_classified.loc[ int( code ) ]
 
-		try: 
-			operation = df_operation_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
-			content += '\noperation:\n年份   季度  应收账款周转天数  存货周转天数  流动资产周转天数\n'
-			
-			for id in range( operation.index.size ):
-				content += '{5}{0}  {1}  {2:-16.2f}     {3:-8.2f}     {4:-15.2f}\n'.format( operation.iloc[ id ][ 'year' ], \
-					operation.iloc[ id ][ 'quarter' ],operation.iloc[ id ][ 'arturndays' ], operation.iloc[ id ][ 'inventory_days' ], \
-					operation.iloc[ id ][ 'currentasset_days' ], space( int( operation.iloc[ id ][ 'quarter' ] ) - 1 ) )
-		except: pass
-			
-		try:		
-			debtpaying = df_debtpaying_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
-			content += '\ndebtpaying:\n年份   季度  流动比率  利息支付倍数  股东权益比率  股东权益增长率\n'
+				content += '\nconcept:\n'
+				for id in range( concept.index.size ):
+					content += '{0}\n'.format( concept.iloc[ id ][ 'c_name' ] )
+			except: pass
 
-			for col in [ 'currentratio', 'icratio', 'sheqratio', 'adratio' ]:
+			try: 
+				profit = df_profit_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+				content += '\nprofit:\n年份   季度  净资产收益率  净利润（万元）  每股收益（元）\n'
+				for id in range( profit.index.size ):
+					content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
+							profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profit_ratio' ], profit.iloc[ id ][ 'eps' ], \
+							space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ) )
+			except: pass
+
+			try: 
+				operation = df_operation_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+				content += '\noperation:\n年份   季度  应收账款周转天数  存货周转天数  流动资产周转天数\n'
+				
+				for id in range( operation.index.size ):
+					content += '{5}{0}  {1}  {2:-16.2f}     {3:-8.2f}     {4:-15.2f}\n'.format( operation.iloc[ id ][ 'year' ], \
+						operation.iloc[ id ][ 'quarter' ],operation.iloc[ id ][ 'arturndays' ], operation.iloc[ id ][ 'inventory_days' ], \
+						operation.iloc[ id ][ 'currentasset_days' ], space( int( operation.iloc[ id ][ 'quarter' ] ) - 1 ) )
+			except: pass
+				
+			try:		
+				debtpaying = df_debtpaying_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
+				content += '\ndebtpaying:\n年份   季度  流动比率  利息支付倍数  股东权益比率  股东权益增长率\n'
+
+				for col in [ 'currentratio', 'icratio', 'sheqratio', 'adratio' ]:
+					for id in range( debtpaying.index.size ):
+						try:
+							float( debtpaying[ col ].iloc[ id ] )
+						except:
+							debtpaying[ col ].iloc[ id ] = np.nan
+				
 				for id in range( debtpaying.index.size ):
-					try:
-						float( debtpaying[ col ].iloc[ id ] )
-					except:
-						debtpaying[ col ].iloc[ id ] = np.nan
-			
-			for id in range( debtpaying.index.size ):
-					content += '{5}{0}  {1}  {2:-8.2f}   {3:-12.2f}   {4:-10.2f}   {6:-14.2f}\n'.format( debtpaying.iloc[ id ][ 'year' ], \
-						debtpaying.iloc[ id ][ 'quarter' ], float( debtpaying.iloc[ id ][ 'currentratio' ] ), float( debtpaying.iloc[ id ][ 'icratio' ] ), \
-						float( debtpaying.iloc[ id ][ 'sheqratio' ] ), space( int( debtpaying.iloc[ id ][ 'quarter' ] ) - 1 ), \
-						float( debtpaying.iloc[ id ][ 'adratio' ] ) )
-		except: pass
+						content += '{5}{0}  {1}  {2:-8.2f}   {3:-12.2f}   {4:-10.2f}   {6:-14.2f}\n'.format( debtpaying.iloc[ id ][ 'year' ], \
+							debtpaying.iloc[ id ][ 'quarter' ], float( debtpaying.iloc[ id ][ 'currentratio' ] ), float( debtpaying.iloc[ id ][ 'icratio' ] ), \
+							float( debtpaying.iloc[ id ][ 'sheqratio' ] ), space( int( debtpaying.iloc[ id ][ 'quarter' ] ) - 1 ), \
+							float( debtpaying.iloc[ id ][ 'adratio' ] ) )
+			except: pass
 
-		try: 
-			divi = df_divi_data.loc[ int( code ) ].sort_values( by = 'year', axis = 0, ascending = True )
-			content += '\ndivision:\n年份    公布日期  分红金额(每10股)  转增股数(每10股)\n'
+			try: 
+				divi = df_divi_data.loc[ int( code ) ].sort_values( by = 'year', axis = 0, ascending = True )
+				content += '\ndivision:\n年份    公布日期  分红金额(每10股)  转增股数(每10股)\n'
 
-			for id in range( divi.index.size ):
-				content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
-					int( divi.iloc[ id ][ 'shares' ] ) )
-		except: pass
+				for id in range( divi.index.size ):
+					content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
+						int( divi.iloc[ id ][ 'shares' ] ) )
+			except: pass
 
-		try:
-			focast_quarter_data = df_forcast_quarter_report_data.loc[ int( code ) ].sort_values( by = 'report_date', axis = 0, ascending = True )
-			content += '\nforcast quarter report:\n发布日期    业绩变动类型  上年同期每股收益  业绩变动范围\n'
+			try:
+				focast_quarter_data = df_forcast_quarter_report_data.loc[ int( code ) ].sort_values( by = 'report_date', axis = 0, ascending = True )
+				content += '\nforcast quarter report:\n发布日期    业绩变动类型  上年同期每股收益  业绩变动范围\n'
 
-			for id in range( focast_quarter_data.index.size ):
-				content += '{0}  {1:>8s}  {2:-14.2f}  {3:>12s}\n'.format( focast_quarter_data.iloc[ id ][ 'report_date' ], \
-					focast_quarter_data.iloc[ id ][ 'type' ], float( focast_quarter_data.iloc[ id ][ 'pre_eps' ] ), \
-					focast_quarter_data.iloc[ id ][ 'range' ] )
-		except: pass
+				for id in range( focast_quarter_data.index.size ):
+					content += '{0}  {1:>8s}  {2:-14.2f}  {3:>12s}\n'.format( focast_quarter_data.iloc[ id ][ 'report_date' ], \
+						focast_quarter_data.iloc[ id ][ 'type' ], float( focast_quarter_data.iloc[ id ][ 'pre_eps' ] ), \
+						focast_quarter_data.iloc[ id ][ 'range' ] )
+			except: pass
 
-		# try:
-		restrict = df_restrict_stock_data.loc[ int( code ) ].sort_values( by = 'date', axis = 0, ascending = True )
-		content += '\nrestrict:\n解禁日期    解禁数量（万股）  占总盘比率\n'
+			try:
+				restrict = df_restrict_stock_data.loc[ int( code ) ].sort_values( by = 'date', axis = 0, ascending = True )
+				content += '\nrestrict:\n解禁日期    解禁数量（万股）  占总盘比率\n'
 
-		for id in range( restrict.index.size ):
-			content += '{0}  {1:-12.2f}  {2:-10.2f}\n'.format( restrict.iloc[ id ][ 'date' ], \
-					float( restrict.iloc[ id ][ 'count' ] ), float( restrict.iloc[ id ][ 'ratio' ] ) )
-		# except: pass
+				for id in range( restrict.index.size ):
+					content += '{0}  {1:-12.2f}  {2:-10.2f}\n'.format( restrict.iloc[ id ][ 'date' ], \
+							float( restrict.iloc[ id ][ 'count' ] ), float( restrict.iloc[ id ][ 'ratio' ] ) )
+			except: pass
 
-		print( content )
+			LOG( content )
+			dict_stock_info[ code ] = content
+		return dict_stock_info
 					
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
 	
-	# Data( Utils.cur_date() ).update_all()
-	code = '300299'
-	Data().query_stock_info( code )
+	Data( Utils.cur_date() ).update_all()

@@ -1,12 +1,14 @@
 import pandas as pd
 import sys, os, re, time, datetime
 from functools import wraps
-
+  
 from email import encoders
-from email.header import Header
+from email.header import Header, decode_header
+from email.parser import Parser
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 import smtplib
+import poplib 
 
 '''--------------- switch definition ---------------'''
 SAVE_DATA = 'xls'
@@ -48,17 +50,13 @@ class Utils():
 
 		return time.strftime('%H:%M:%S',time.localtime( time.time() )  )
 
-	def send_email( content, header = 'stock notification' ):
+	def send_email( content, header = 'stock notification', from_addr = 'qiyubi@126.com', password = 'qiyubi1990', \
+			smtp_server = 'smtp.126.com', to_addr = '504571914@qq.com' ):
 
 		def _format_addr( s ):
 			name, addr = parseaddr( s )
 			return formataddr( ( Header( name, 'utf-8' ).encode(), addr ) )
-			
-		from_addr = 'qiyubi@126.com'
-		password = 'qiyubi1990'
-		to_addr = '504571914@qq.com'
-		smtp_server = 'smtp.126.com'
-
+		
 		msg = MIMEText( content, 'plain', 'utf-8' )
 		msg['From'] = _format_addr( 'abel <%s>' % from_addr )
 		msg['To'] = _format_addr( 'qiyubi <%s>' % to_addr )
@@ -69,6 +67,49 @@ class Utils():
 		server.login( from_addr, password )
 		server.sendmail( from_addr, [ to_addr ], msg.as_string() )
 		server.quit()
+
+	def receive_email_query_code( email_addr = 'qiyubi@126.com', password = 'qiyubi1990', pop3_server = 'pop.126.com' ):
+ 
+		# 解码头信息 
+		def decode_str( s ):  
+			value, charset = decode_header( s )[ 0 ]  
+			if charset:  
+				value = value.decode( charset )  
+			return value 
+		
+		#下载原始邮件  
+		server = poplib.POP3( pop3_server )
+		server.user( email_addr )
+		server.pass_( password )
+		resp, mails, octets = server.list()
+		
+		# 解析邮件最新一封邮件
+		index = len( mails )
+		resp, lines, octets = server.retr( index )  
+		msg_content = b'\r\n'.join( lines ).decode( 'utf-8' )  
+		msg = Parser().parsestr( msg_content )  
+		
+		content = ''
+		ls_code = []
+		subject = msg.get( 'Subject', '' )
+
+		if subject:  
+			subject_value = decode_str( subject )
+			if subject_value == 'stock':
+				content_type = msg.get_content_type()
+				if ( msg.is_multipart() ):  
+					parts = msg.get_payload() 
+					content_type = parts[ 0 ].get_content_type()
+					if content_type == 'text/plain' or content_type == 'text/html':
+						content = parts[ 0 ].get_payload( decode = True )
+						content = content.decode()
+		pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
+		ls_code = re.split( pattern, content.strip() )
+		# 去除ls_code中的空字符串
+		ls_code = [ ls_code[ i ] for i in range( 0, len( ls_code ) ) if ls_code[i] !=  '' ]
+		server.quit()
+
+		return ls_code
 		
 
 	if SAVE_DATA == 'xls':
