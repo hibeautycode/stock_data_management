@@ -5,6 +5,7 @@ from data import Data
 from utils import Utils, LOG, ERROR, SEND_EMAIL
 from pandas import DataFrame
 from time import sleep
+import operator as op
 
 class Position():
 # 持仓类
@@ -15,20 +16,29 @@ class Position():
 
 	def serve_query_request( self ):
 
+		ls_code_queried = []
+
 		while True:
 
 			ls_code = Utils.receive_email_query_code()
 
-			LOG( 'ls_code:{0}'.format( ls_code ) )
+			LOG( 'query code:{0}'.format( ls_code ) )
+
+			if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
+			# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
+				sleep( 180 )
+				continue
+
+			ls_code_queried = ls_code
 			
 			dict_stock_info = Data().query_stock_info( ls_code )
 
 			for ( code, info ) in dict_stock_info.items():
 				Utils.send_email( info, 'stock info ' + code )
-			LOG( 'send email stock info' )
+				LOG( 'send stock info {0}'.format( code ) )
 
-			# 每10分钟查一次邮箱是否有查询
-			sleep( 600 )
+			# 每3分钟查一次邮箱是否有查询
+			sleep( 180 )
 
 
 	def notify_realtime_earnings( self ):
@@ -89,6 +99,6 @@ class Position():
 
 if __name__ == '__main__':
 
-	# Position().notify_realtime_earnings()
+	#Position().notify_realtime_earnings()
 	Position().serve_query_request()
 	

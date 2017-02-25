@@ -402,7 +402,7 @@ class Analyse():
 		mutex_lock_df_value_stock = threading.Lock()
 		mutex_lock_stock_num = threading.Lock()
 		for n in range( num_threads ):
-			list_threads.append( threading.Thread( target = find_part_value_stock, args=( self, df_tmp_stock_basics, \
+			list_threads.append( threading.Thread( target = find_part_value_stock, args = ( self, df_tmp_stock_basics, \
 				int( num_stock / num_threads ) * n, int( num_stock / num_threads ) * ( n + 1 ), \
 				mutex_lock_stock_num, mutex_lock_df_value_stock ) ) )
 		list_threads.append( threading.Thread( target = find_part_value_stock, \
@@ -413,8 +413,8 @@ class Analyse():
 			thread.start()
 		for thread in list_threads:
 			thread.join()
-		#self.df_value_stock = self.df_value_stock.sort( columns = 'expect_earn_rate', ascending = False )
-		self.df_value_stock = self.df_value_stock.sort_values( by = 'expect_earn_rate', axis=0, ascending=False )
+		
+		self.df_value_stock = self.df_value_stock.sort_values( by = 'expect_earn_rate', axis = 0, ascending = False )
 		self.save_data( self.df_value_stock, self.value_stock_file )
 	
 	def notify_investment_opportunity( self ):
@@ -446,12 +446,12 @@ class Analyse():
 					df_realtime_quotes = Data().get_realtime_quotes( code )				
 				
 					if float( df_realtime_quotes[ 'price' ] ) >= ( float( df_value_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) :
-						LOG( '{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  expect earn rate:{4:.2f}'\
+						LOG( '{0}  {1}  cur:{2:.2f}  buy:{3:.2f}  earn:{4:.2f}'\
 							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
 									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
 									float( df_value_stock.loc[ index ][ 'expect_earn_rate' ] ), \
 									float( df_value_stock.loc[ index ][ 'min_earn_rate' ] ) ) )
-						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  expect earn rate:{4:.2f}\n'\
+						content_notify += '-{0}  {1}  cur:{2:.2f}  buy:{3:.2f}  earn:{4:.2f}\n'\
 							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
 									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
 									float( df_value_stock.loc[ index ][ 'expect_earn_rate' ] ), \
@@ -483,6 +483,7 @@ if __name__ == '__main__':
 	list_process = []
 	list_process.append( Process( target = analyse_class.notify_investment_opportunity ) )
 	list_process.append( Process( target = Position().notify_realtime_earnings ) )
+	list_process.append( Process( target = Position().serve_query_request() ) )
 	
 	for process in list_process:
 		process.start()
