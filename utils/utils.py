@@ -50,6 +50,17 @@ class Utils():
 
 		return time.strftime('%H:%M:%S',time.localtime( time.time() )  )
 
+	def func_timer( function ):
+		@wraps(function)
+		def function_timer(*args, **kwargs):
+			t0 = time.time()
+			res = function(*args, **kwargs)
+			t1 = time.time()
+			print( 'function-{0} running time : {1:.2f} minutes'.format( function.__name__, ( t1-t0 ) / 60 ) )
+			return res
+		return function_timer
+			
+
 	def send_email( content, header = 'stock notification', from_addr = 'xingzhewujiang1990@126.com', password = 'qingxue1990', \
 			smtp_server = 'smtp.126.com', to_addr = '504571914@qq.com' ):
 
@@ -130,17 +141,6 @@ class Utils():
 			excel_writer.save()
 		
 		
-		def func_timer( function ):
-			@wraps(function)
-			def function_timer(*args, **kwargs):
-				t0 = time.time()
-				res = function(*args, **kwargs)
-				t1 = time.time()
-				print( 'function-{0} running time : {1:.2f} minutes'.format( function.__name__, ( t1-t0 ) / 60 ) )
-				return res
-			return function_timer
-
-			
 		def save_dict_to_xls( dict_to_save, save_name ):
 		
 			dict_to_save = sorted( dict_to_save.items(), key = operator.itemgetter( 1 ), reverse = True )

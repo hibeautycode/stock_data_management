@@ -1,4 +1,4 @@
-import sys, os, time, threading, datetime
+import sys, os, time, threading, datetime, types
 sys.path.append( '../utils' )
 from utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
@@ -183,7 +183,7 @@ class Data():
 	# roe,净资产收益率(%)
 	# net_profit_ratio,净利率(%)
 	# gross_profit_rate,毛利率(%)
-	# net_profits,净利润(万元)
+	# net_profits,净利润(百万元)
 	# eps,每股收益
 	# business_income,营业收入(百万元)
 	# bips,每股主营业务收入(元)
@@ -560,9 +560,10 @@ class Data():
 			process.start()
 		for process in list_process:
 			process.join()	
-	'''--------------- custom query func ---------------'''	
-	@Utils.func_timer
+	'''--------------- custom query func ---------------'''
 	def get_all_stock_data( self ):
+
+		LOG( 'loading data...')
 
 		df_stock_basics = self.get_stock_basics()
 		df_stock_basics = df_stock_basics.set_index( 'code' )
@@ -596,6 +597,8 @@ class Data():
 		
 		df_concept_classified = self.get_concept_classified_data()
 		df_concept_classified = df_concept_classified.set_index( 'code' )
+
+		LOG( 'finish loading.' )
 
 		return [ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
 				df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ]
@@ -632,18 +635,22 @@ class Data():
 
 			try:
 				concept = df_concept_classified.loc[ int( code ) ]
-
 				content += '\nconcept:\n'
-				for id in range( concept.index.size ):
-					content += '{0}\n'.format( concept.iloc[ id ][ 'c_name' ] )
+				if type( concept ) == pd.Series:
+					concept = concept.to_frame().T
+				if type( concept ) == pd.DataFrame:
+					for id in range( concept.index.size ):
+						content += '{0}\n'.format( concept.iloc[ id ][ 'c_name' ] )
+				else:
+					ERROR( 'concept type error.' )
 			except: pass
 
 			try: 
 				profit = df_profit_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
-				content += '\nprofit:\n年份   季度  净资产收益率  净利润（万元）  每股收益（元）\n'
+				content += '\nprofit:\n年份   季度  净资产收益率  净利润（百万）  每股收益（元）\n'
 				for id in range( profit.index.size ):
 					content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
-							profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profit_ratio' ], profit.iloc[ id ][ 'eps' ], \
+							profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profits' ], profit.iloc[ id ][ 'eps' ], \
 							space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ) )
 			except: pass
 
@@ -676,31 +683,52 @@ class Data():
 			except: pass
 
 			try: 
-				divi = df_divi_data.loc[ int( code ) ].sort_values( by = 'year', axis = 0, ascending = True )
+				divi = df_divi_data.loc[ int( code ) ]
 				content += '\ndivision:\n年份    公布日期  分红金额(每10股)  转增股数(每10股)\n'
-
-				for id in range( divi.index.size ):
-					content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
+				
+				if type( divi ) == pd.Series:
+					divi = divi.to_frame().T
+					
+				if type( divi ) == pd.DataFrame:
+					divi = divi.sort_values( by = 'year', axis = 0, ascending = True )
+					for id in range( divi.index.size ):
+						content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
 						int( divi.iloc[ id ][ 'shares' ] ) )
+				else:
+					ERROR( 'divi type error.' )
 			except: pass
 
 			try:
-				focast_quarter_data = df_forcast_quarter_report_data.loc[ int( code ) ].sort_values( by = 'report_date', axis = 0, ascending = True )
+				forcast_quarter_data = df_forcast_quarter_report_data.loc[ int( code ) ]
 				content += '\nforcast quarter report:\n发布日期    业绩变动类型  上年同期每股收益  业绩变动范围\n'
 
-				for id in range( focast_quarter_data.index.size ):
-					content += '{0}  {1:>8s}  {2:-14.2f}  {3:>12s}\n'.format( focast_quarter_data.iloc[ id ][ 'report_date' ], \
-						focast_quarter_data.iloc[ id ][ 'type' ], float( focast_quarter_data.iloc[ id ][ 'pre_eps' ] ), \
-						focast_quarter_data.iloc[ id ][ 'range' ] )
+				if type( forcast_quarter_data ) == pd.Series:
+					forcast_quarter_data = forcast_quarter_data.to_frame().T
+				
+				if type( forcast_quarter_data ) == pd.DataFrame:
+					forcast_quarter_data = forcast_quarter_data.sort_values( by = 'report_date', axis = 0, ascending = True )
+					for id in range( forcast_quarter_data.index.size ):
+						content += '{0}  {1:>8s}  {2:-14.2f}  {3:>12s}\n'.format( forcast_quarter_data.iloc[ id ][ 'report_date' ], \
+							forcast_quarter_data.iloc[ id ][ 'type' ], float( forcast_quarter_data.iloc[ id ][ 'pre_eps' ] ), \
+							forcast_quarter_data.iloc[ id ][ 'range' ] )
+				else:
+					ERROR( 'forcast_quarter_data type error.' )
 			except: pass
 
 			try:
-				restrict = df_restrict_stock_data.loc[ int( code ) ].sort_values( by = 'date', axis = 0, ascending = True )
+				restrict = df_restrict_stock_data.loc[ int( code ) ]
 				content += '\nrestrict:\n解禁日期    解禁数量（万股）  占总盘比率\n'
 
-				for id in range( restrict.index.size ):
-					content += '{0}  {1:-12.2f}  {2:-10.2f}\n'.format( restrict.iloc[ id ][ 'date' ], \
-							float( restrict.iloc[ id ][ 'count' ] ), float( restrict.iloc[ id ][ 'ratio' ] ) )
+				if type( restrict ) == pd.Series:
+					restrict = restrict.to_frame().T
+					
+				if type( restrict ) == pd.DataFrame:
+					restrict = restrict.sort_values( by = 'date', axis = 0, ascending = True )
+					for id in range( restrict.index.size ):
+						content += '{0}  {1:-12.2f}  {2:-10.2f}\n'.format( restrict.iloc[ id ][ 'date' ], \
+								float( restrict.iloc[ id ][ 'count' ] ), float( restrict.iloc[ id ][ 'ratio' ] ) )
+				else:
+					ERROR( 'restrict type error.' )
 			except: pass
 
 			LOG( content )
