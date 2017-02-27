@@ -12,9 +12,9 @@ import poplib
 
 '''--------------- switch definition ---------------'''
 SAVE_DATA = 'xls'
-SHOW_LOG = True
+SHOW_LOG = False
 SHOW_ERROR = True
-SEND_EMAIL = True
+SEND_EMAIL = False
 
 def LOG( content ):
 	if SHOW_LOG:
@@ -67,17 +67,22 @@ class Utils():
 		def _format_addr( s ):
 			name, addr = parseaddr( s )
 			return formataddr( ( Header( name, 'utf-8' ).encode(), addr ) )
-		
-		msg = MIMEText( content, 'plain', 'utf-8' )
-		msg['From'] = _format_addr( 'abel <%s>' % from_addr )
-		msg['To'] = _format_addr( 'abel <%s>' % to_addr )
-		msg['Subject'] = Header( header, 'utf-8' ).encode()
+		try:
+			msg = MIMEText( content, 'plain', 'utf-8' )
+			msg['From'] = _format_addr( 'abel <%s>' % from_addr )
+			msg['To'] = _format_addr( 'abel <%s>' % to_addr )
+			msg['Subject'] = Header( header, 'utf-8' ).encode()
 
-		server = smtplib.SMTP( smtp_server, 25 )
-		#server.set_debuglevel( 1 )
-		server.login( from_addr, password )
-		server.sendmail( from_addr, [ to_addr ], msg.as_string() )
-		server.quit()
+			server = smtplib.SMTP( smtp_server, 25 )
+			#server.set_debuglevel( 1 )
+			server.login( from_addr, password )
+			server.sendmail( from_addr, [ to_addr ], msg.as_string() )
+			server.quit()
+		except:
+			server.quit()
+			ERROR( 'fail send_email from {0}'.format( from_addr ) )
+			Utils.send_email( content, header, from_addr = 'qiyubi@126.com', password = 'qiyubi1990', \
+				smtp_server = 'smtp.126.com', to_addr = '504571914@qq.com' )
 
 	def receive_email_query_code( email_addr = 'xingzhewujiang1990@126.com', password = 'qingxue1990', pop3_server = 'pop.126.com' ):
  

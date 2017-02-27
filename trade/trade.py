@@ -92,13 +92,15 @@ class Position():
 				except:
 					pass
 			content_notify += 'total_earn:{0:.2f}'.format( total_earn )
-			Utils.send_email( content_notify, 'position notification' )
-			LOG( 'notify position.')
-			LOG( df_position )
+			if SEND_EMAIL:
+				Utils.send_email( content_notify, 'position notification' )
+			LOG( content_notify )
 			sleep( 600 )
 
 if __name__ == '__main__':
 
 	#Position().notify_realtime_earnings()
-	Position().serve_query_request()
+	#Position().serve_query_request()
+
+	Data().query_stock_info( ['300499'] )
 	
