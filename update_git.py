@@ -6,8 +6,8 @@ class update_git():
 
 		self.__dst_master_dir = '../git_stock/'
 		self.__src_master_dir = '../stock/'
-		self.__ls_sec_level_dir = [ 'data/', 'utils/', 'trade/', 'factor/' ]
-		self.__ls_file = [ 'data.py', 'utils.py', 'trade.py', 'oscillation.py' ]
+		self.__ls_sec_level_dir = [ 'data/', 'utils/', 'notify/', 'factor/' ]
+		self.__ls_file = [ 'data.py', 'utils.py', 'notify.py', 'oscillation.py' ]
 
 	def move_file( self ):
 

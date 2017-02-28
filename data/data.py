@@ -738,4 +738,9 @@ class Data():
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
 	
-	Data( Utils.cur_date() ).update_all()
+	# Data( Utils.cur_date() ).update_all()
+
+	input = input( 'Enter stock codes:\n' )
+	pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
+	ls_code = re.split( pattern, input.strip() )
+	Data().query_stock_info( ls_code )

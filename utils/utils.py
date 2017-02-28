@@ -12,7 +12,7 @@ import poplib
 
 '''--------------- switch definition ---------------'''
 SAVE_DATA = 'xls'
-SHOW_LOG = False
+SHOW_LOG = True
 SHOW_ERROR = True
 SEND_EMAIL = False
 
