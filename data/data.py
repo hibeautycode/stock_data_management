@@ -1,4 +1,4 @@
-import sys, os, time, threading, datetime, types
+import sys, os, time, threading, datetime, types, re
 sys.path.append( '../utils' )
 from utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
@@ -647,11 +647,11 @@ class Data():
 
 			try: 
 				profit = df_profit_data.loc[ int( code ) ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True ).drop_duplicates()
-				content += '\nprofit:\n年份   季度  净资产收益率  净利润（百万）  每股收益（元）\n'
+				content += '\nprofit:\n年份   季度  净资产收益率  净利润（百万）  每股收益（元）每股主营业务收入(元)\n'
 				for id in range( profit.index.size ):
-					content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
+					content += '{5}{0}  {1}  {2:-10.2f}  {3:-12.2f}  {4:-15.2f}  {6:-20.2f}\n'.format( profit.iloc[ id ][ 'year' ], profit.iloc[ id ][ 'quarter' ], \
 							profit.iloc[ id ][ 'roe' ], profit.iloc[ id ][ 'net_profits' ], profit.iloc[ id ][ 'eps' ], \
-							space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ) )
+							space( int( profit.iloc[ id ][ 'quarter' ] ) - 1 ), profit.iloc[ id ][ 'bips' ] )
 			except: pass
 
 			try: 
