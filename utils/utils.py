@@ -14,7 +14,7 @@ import poplib
 SAVE_DATA = 'xls'
 SHOW_LOG = True
 SHOW_ERROR = True
-SEND_EMAIL = True
+SEND_EMAIL = False
 
 def LOG( content ):
 	if SHOW_LOG:
@@ -141,10 +141,16 @@ class Utils():
 
 			
 		def save_data( dataframe, file_name, sheet_name = 'Sheet1' ):
-			excel_writer = pd.ExcelWriter( file_name )
-			dataframe.to_excel( excel_writer, sheet_name )
-			excel_writer.save()
-		
+			
+			while True:
+				try:
+					excel_writer = pd.ExcelWriter( file_name )
+					dataframe.to_excel( excel_writer, sheet_name )
+					excel_writer.save()
+					break
+				except PermissionError:
+					wait = input('waiting for file closed...')
+
 		
 		def save_dict_to_xls( dict_to_save, save_name ):
 		

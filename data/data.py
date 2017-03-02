@@ -1,6 +1,6 @@
 import sys, os, time, threading, datetime, types, re
-sys.path.append( '../utils' )
-from utils import Utils, SAVE_DATA, LOG, ERROR
+sys.path.append( '../../stock' )
+from utils.utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
 import pandas as pd
 import numpy as np
@@ -616,9 +616,9 @@ class Data():
 
 		for code in ls_code:
 
-			content = '\n{0}\n'.format( code )
 			try:
 				basics = df_stock_basics.loc[ int( code ) ]
+				content = '\n{0}  {1}\n'.format( code, basics[ 'name' ] )			
 				cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
 
 				content += '\nbasics:\n上市日期：{0}\n所属行业：{1}\n地区：{2}\n市盈率(动态)：{3}\n市盈率(静态)：{4:.2f}\n市净率：{5}\n'\
@@ -631,7 +631,8 @@ class Data():
 				content += '总资产：{0:.2f} 亿元\n固定资产：{1:.2f} 亿元\n流动资产：{2:.2f} 亿元\n'\
 					.format( float( basics[ 'totalAssets' ] ) / 10000, float( basics[ 'fixedAssets' ] ) / 10000, \
 							float( basics[ 'liquidAssets' ] ) / 10000 )
-			except: pass
+			except: 
+				content = '\n{0}\n'.format( code )
 
 			try:
 				concept = df_concept_classified.loc[ int( code ) ]

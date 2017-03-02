@@ -1,8 +1,7 @@
 import sys, os
-sys.path.append( '../data' )
-sys.path.append( '../utils' )
-from data import Data
-from utils import Utils, LOG, ERROR
+sys.path.append( '../../stock' )
+from data.data import Data
+from utils.utils import Utils, LOG, ERROR
 import tushare as ts
 import pandas as pd
 

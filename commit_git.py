@@ -1,11 +1,11 @@
 import shutil, os
 
-class load_git():
+class commit_git():
 
 	def __init__( self ):
 
-		self.__dst_master_dir = '../stock/'
-		self.__src_master_dir = '../git_stock/'
+		self.__dst_master_dir = '../git_stock/'
+		self.__src_master_dir = '../stock/'
 		
 	def move_file( self, src_dir, dst_dir ):
 
@@ -17,7 +17,7 @@ class load_git():
 			cur_dst_item = os.path.join( dst_dir, item )
 			cur_src_item = os.path.join( src_dir, item )
 
-			if os.path.isdir( cur_src_item ) and os.path.basename( cur_src_item ) != '.git':			
+			if os.path.isdir( cur_src_item ) and os.path.basename( cur_src_item ) in [ 'data', 'factor', 'utils', 'notify' ]:			
 				self.move_file( cur_src_item, cur_dst_item )
 
 			elif os.path.isfile( cur_src_item )  and os.path.basename( cur_src_item ).split( '.' )[ -1 ] == 'py' and \

@@ -1,10 +1,8 @@
 import sys, os
-sys.path.append( '../data' )
-sys.path.append( '../utils' )
-sys.path.append( '../model' )
-from data import Data
-from utils import Utils, LOG, ERROR, SEND_EMAIL
-from spill_wave import Analyse
+sys.path.append( '../../stock' )
+from data.data import Data
+from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
+from model.spill_wave import Analyse
 from pandas import DataFrame
 from time import sleep
 from multiprocessing import Queue, Process
@@ -14,7 +12,7 @@ class Notify():
 
 	def __init__( self ):
 
-		self.__file_path_position = '../trade/data/position.xlsx'
+		self.__file_path_position = '../notify/position/position.xlsx'
 
 	def serve_query_request( self ):
 
