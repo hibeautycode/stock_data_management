@@ -561,6 +561,7 @@ class Data():
 		for process in list_process:
 			process.join()	
 	'''--------------- custom query func ---------------'''
+	@Utils.func_timer	
 	def get_all_stock_data( self ):
 
 		LOG( 'loading data...')
@@ -602,14 +603,12 @@ class Data():
 
 		return [ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
 				df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ]
-
-	@Utils.func_timer
-	def query_stock_info( self, ls_code ):
+	
+	def query_stock_info( self, ls_code, ls_all_stock_data ):
 
 		[ df_stock_basics, df_quarter_report_data, df_profit_data, df_operation_data, df_growth_data, df_debtpaying_data, \
-			df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ] = \
-			self.get_all_stock_data()
-		
+			df_cashflow_data, df_divi_data, df_forcast_quarter_report_data, df_restrict_stock_data, df_concept_classified ] = ls_all_stock_data
+				
 		space = lambda x : ' ' * x # 方便区分不同季度数据	
 		pd.options.mode.chained_assignment = None  # 不显示warn信息 default='warn'
 		dict_stock_info = {}
@@ -618,8 +617,11 @@ class Data():
 
 			try:
 				basics = df_stock_basics.loc[ int( code ) ]
-				content = '\n{0}  {1}\n'.format( code, basics[ 'name' ] )			
-				cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
+				content = '\n{0}  {1}\n'.format( code, basics[ 'name' ] )	
+				try:		
+					cur_price = float( self.get_k_line_data( code ).iloc[ -1 ][ 'close' ] )
+				except:
+					cur_price = float( self.get_realtime_quotes( code )[ 'price' ] )
 
 				content += '\nbasics:\n上市日期：{0}\n所属行业：{1}\n地区：{2}\n市盈率(动态)：{3}\n市盈率(静态)：{4:.2f}\n市净率：{5}\n'\
 					.format( basics[ 'timeToMarket' ], basics[ 'industry' ], basics[ 'area' ], basics[ 'pe' ], \
@@ -741,7 +743,11 @@ if __name__ == '__main__':
 	
 	# Data( Utils.cur_date() ).update_all()
 
-	input = input( 'Enter stock codes:\n' )
-	pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
-	ls_code = re.split( pattern, input.strip() )
-	Data().query_stock_info( ls_code )
+	ls_all_stock_data = Data().get_all_stock_data()
+
+	while True:
+
+		str_input = input( 'Enter stock codes:\n' )
+		pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
+		ls_code = re.split( pattern, str_input.strip() )
+		Data().query_stock_info( ls_code, ls_all_stock_data )

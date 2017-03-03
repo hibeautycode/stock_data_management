@@ -17,6 +17,7 @@ class Notify():
 	def serve_query_request( self ):
 
 		ls_code_queried = []
+		ls_all_stock_data = Data().get_all_stock_data()
 
 		while True:
 
@@ -31,7 +32,7 @@ class Notify():
 
 			ls_code_queried = ls_code
 			
-			dict_stock_info = Data().query_stock_info( ls_code )
+			dict_stock_info = Data().query_stock_info( ls_code, ls_all_stock_data )
 
 			for ( code, info ) in dict_stock_info.items():
 				Utils.send_email( info, 'stock info ' + code )
@@ -95,7 +96,7 @@ class Notify():
 			if SEND_EMAIL:
 				Utils.send_email( content_notify, 'position notification' )
 			LOG( content_notify )
-			sleep( 600 )
+			sleep( 60 )
 
 
 	def notify_investment_opportunity( self ):
