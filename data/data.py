@@ -39,6 +39,7 @@ class Data():
 			self.__forcast_quarter_report_file_name = self.__main_dir + '/stock_forcast_quarter_report.xlsx'
 			self.__restrict_stock_file_name = self.__main_dir + '/stock_restrict_stock.xlsx'
 			self.__concept_classified_file_name = self.__main_dir + '/stock_concept_classified.xlsx'
+			self.__industry_classified_file_name = self.__main_dir + '/stock_industry_classified.xlsx'
 	
 	'''--------------- stock fundamental data ---------------'''
 	def get_realtime_quotes( self, code ):
@@ -513,6 +514,28 @@ class Data():
 			exit()
 	
 	'''--------------- stock classification data ---------------'''	
+	def update_industry_classified( self ):
+		
+		if not os.path.exists( self.__industry_classified_file_name ):			
+			try:
+				df_industry_classified = ts.get_industry_classified()
+			except:
+				ERROR( 'exception occurs when update industry classified data' )
+			else:
+				LOG( 'update industry classified' )
+				Utils.save_data( df_industry_classified, self.__industry_classified_file_name, 'industry classified' )	
+	
+	def get_industry_classified_data( self ):
+	# 返回值：
+	# code：股票代码
+	# name：股票名称
+	# c_name：行业名称
+		if os.path.exists( self.__industry_classified_file_name ):
+			return Utils.read_data( self.__industry_classified_file_name )
+		else:
+			ERROR( self.__industry_classified_file_name + ' not exists' )
+			exit()
+
 	def update_concept_classified( self ):
 		
 		if not os.path.exists( self.__concept_classified_file_name ):			
@@ -554,7 +577,8 @@ class Data():
 		list_process.append( Process( target = self.update_k_line_data ) )
 		list_process.append( Process( target = self.update_divi_data ) )
 		list_process.append( Process( target = self.update_restrict_stock_data ) )
-		list_process.append( Process( target = self.update_concept_classified ) )		
+		list_process.append( Process( target = self.update_concept_classified ) )
+		list_process.append( Process( target = self.update_industry_classified ) )
 		
 		for process in list_process:
 			process.start()
@@ -741,13 +765,13 @@ class Data():
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
 	
-	# Data( Utils.cur_date() ).update_all()
+	Data( Utils.cur_date() ).update_all()
 
-	ls_all_stock_data = Data().get_all_stock_data()
+	# ls_all_stock_data = Data().get_all_stock_data()
 
-	while True:
+	# while True:
 
-		str_input = input( 'Enter stock codes:\n' )
-		pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
-		ls_code = re.split( pattern, str_input.strip() )
-		Data().query_stock_info( ls_code, ls_all_stock_data )
+	# 	str_input = input( 'Enter stock codes:\n' )
+	# 	pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
+	# 	ls_code = re.split( pattern, str_input.strip() )
+	# 	Data().query_stock_info( ls_code, ls_all_stock_data )
