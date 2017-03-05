@@ -20,18 +20,11 @@ class Pe():
 							'concept_11', 'rank_11', 'concept_12', 'rank_12', 'concept_13', 'rank_13', 'concept_14', 'rank_14', \
 							'concept_15', 'rank_15', 'concept_16', 'rank_16', 'concept_17', 'rank_17', 'concept_18', 'rank_18',\
 							'concept_19', 'rank_19', 'concept_20', 'rank_20') )
-		self.df_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'industry', 'rank', 'concept_1', 'rank_1', 'concept_2', 'rank_2',\
-							'concept_3', 'rank_3', 'concept_4', 'rank_4', 'concept_5', 'rank_5', 'concept_6', 'rank_6',\
-							'concept_7', 'rank_7', 'concept_8', 'rank_8', 'concept_9', 'rank_9', 'concept_10', 'rank_10',\
-							'concept_11', 'rank_11', 'concept_12', 'rank_12', 'concept_13', 'rank_13', 'concept_14', 'rank_14', \
-							'concept_15', 'rank_15', 'concept_16', 'rank_16', 'concept_17', 'rank_17', 'concept_18', 'rank_18',\
-							'concept_19', 'rank_19', 'concept_20', 'rank_20' ) )
 		self.average_industry_pe_file = self.result_path + 'pe_average_industry.xlsx'
 		self.average_concept_pe_file = self.result_path + 'pe_average_concept.xlsx'
 		self.industry_pe_rank_file = self.result_path + 'pe_rank_industry.xlsx'
 		self.concept_pe_rank_file = self.result_path + 'pe_rank_concept.xlsx'
-		self.pe_rank_file = self.result_path + 'pe_rank.xlsx'
-
+		
 	@Utils.func_timer
 	def calc_average_industry_pe( self, df_stock_basics, df_industry_classified ):
 
@@ -190,7 +183,10 @@ class Pe():
 
 		df_stock_basics = Data().get_stock_basics()
 
-		df_industry_classified = Data().get_industry_classified_data()
+		df_industry_classified = pd.DataFrame( columns = ( 'code', 'name', 'c_name' ) )
+		df_industry_classified.code = df_stock_basics.code
+		df_industry_classified.name = df_stock_basics.name
+		df_industry_classified.c_name = df_stock_basics.industry
 		df_industry_classified = df_industry_classified.set_index( 'code' )
 
 		df_concept_classified = Data().get_concept_classified_data()
@@ -199,17 +195,29 @@ class Pe():
 		list_process = []
 		list_process.append( Process( target = self.calc_average_industry_pe, \
 			args=( df_stock_basics, df_industry_classified ) ) )
-		list_process.append( Process( target = self.calc_average_concept_pe, \
-			args=( df_stock_basics, df_concept_classified ) ) )
+		# list_process.append( Process( target = self.calc_average_concept_pe, \
+		# 	args=( df_stock_basics, df_concept_classified ) ) )
 		list_process.append( Process( target = self.calc_industry_pe_rank, \
 			args=( df_stock_basics, df_industry_classified ) ) )
-		list_process.append( Process( target = self.calc_concept_pe_rank, \
-			args=( df_stock_basics, df_concept_classified ) ) )
+		# list_process.append( Process( target = self.calc_concept_pe_rank, \
+		# 	args=( df_stock_basics, df_concept_classified ) ) )
 
 		for process in list_process:
 			process.start()
 		for process in list_process:
 			process.join()
+
+	def get_average_industry_pe( self ):
+		return Utils.read_data( self.average_industry_pe_file )
+
+	def get_average_concept_pe( self ):
+		return Utils.read_data( self.average_concept_pe_file )
+
+	def get_industry_pe_rank( self ):
+		return Utils.read_data( self.industry_pe_rank_file )
+
+	def get_concept_pe_rank( self ):
+		return Utils.read_data( self.concept_pe_rank_file )
 
 	def save_data( self, df_data, file_path_name ):
 	

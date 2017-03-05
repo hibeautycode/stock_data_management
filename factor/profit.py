@@ -11,7 +11,7 @@ class Profit():
 	def __init__( self ):
 
 		self.result_path = '../factor/result/'
-		self.df_profit_grow = pd.DataFrame( columns = ( 'code', 'name', 'profit_grow' ) )
+		self.df_profit_grow = pd.DataFrame( columns = ( 'code', 'name', 'profit_grow', 'rank' ) )
 		self.profit_grow_file = self.result_path + 'profit_grow.xlsx'
 
 	def sub_calc_profit_grow( self, list_code, id_start, id_end, df_profit_data, queue_process ):
@@ -75,7 +75,7 @@ class Profit():
 
 			# LOG( '{0} {1} {2}'.format( code, profit_grow, float( np.var( arr_grow_ratio ) ) ) )
 			name = df_tmp.iloc[ 0 ][ 'name' ]
-			ls_tmp.append( [ code, name, profit_grow ] )
+			ls_tmp.append( [ code, name, profit_grow, np.nan ] )
 
 		queue_process.put_nowait( ls_tmp )
 		
@@ -132,9 +132,16 @@ class Profit():
 		self.df_profit_grow[ 'profit_grow' ] = 100.0 * self.df_profit_grow[ 'profit_grow' ] / self.df_profit_grow[ 'profit_grow' ].max()
 		self.df_profit_grow = self.df_profit_grow.sort_values( by = [ 'profit_grow' ], axis = 0, ascending = False )
 		self.df_profit_grow = self.df_profit_grow.set_index( 'code' )
+		
+		tmp_profit_grow_rank = self.df_profit_grow.rank( ascending = False )
 		for index in self.df_profit_grow.index:
 			self.df_profit_grow[ 'profit_grow' ][ index ] = float( '{0:.2f}'.format( self.df_profit_grow[ 'profit_grow' ][ index ] ) )
+			self.df_profit_grow[ 'rank' ][ index ] = '/'.join( [ str( int( tmp_profit_grow_rank[ 'profit_grow' ][ index ] ) ),\
+													str( self.df_profit_grow.index.size ) ] )
 		self.save_data( self.df_profit_grow, self.profit_grow_file )
+
+	def get_profit_grow( self ):
+		return Utils.read_data( self.profit_grow_file )
 
 	def save_data( self, df_data, file_path_name ):
 	
