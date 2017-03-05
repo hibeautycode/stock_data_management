@@ -765,13 +765,13 @@ class Data():
 '''--------------- run ---------------'''			
 if __name__ == '__main__':
 	
-	Data( Utils.cur_date() ).update_all()
+	# Data( Utils.cur_date() ).update_all()
 
-	# ls_all_stock_data = Data().get_all_stock_data()
+	ls_all_stock_data = Data().get_all_stock_data()
 
-	# while True:
+	while True:
 
-	# 	str_input = input( 'Enter stock codes:\n' )
-	# 	pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
-	# 	ls_code = re.split( pattern, str_input.strip() )
-	# 	Data().query_stock_info( ls_code, ls_all_stock_data )
+		str_input = input( 'Enter stock codes:\n' )
+		pattern = re.compile( '[●┊\-■：∶%；！？;&.,:?!．‘’“”"\'、，。><（()）\[\]\{\}【】―《》『』/／・…_——\s]+' )
+		ls_code = re.split( pattern, str_input.strip() )
+		Data().query_stock_info( ls_code, ls_all_stock_data )
