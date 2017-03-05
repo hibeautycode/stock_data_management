@@ -13,13 +13,13 @@ class Pe():
 		self.result_path = '../factor/result/'
 		self.df_average_industry_pe = pd.DataFrame( columns = ( 'industry', 'average_pe' ) )
 		self.df_average_concept_pe = pd.DataFrame( columns = ( 'concept', 'average_pe' ) )
-		self.df_industry_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'industry', 'rank' ) )
-		self.df_concept_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'concept_1', 'rank_1', 'concept_2', 'rank_2',\
-							'concept_3', 'rank_3', 'concept_4', 'rank_4', 'concept_5', 'rank_5', 'concept_6', 'rank_6',\
-							'concept_7', 'rank_7', 'concept_8', 'rank_8', 'concept_9', 'rank_9', 'concept_10', 'rank_10',\
-							'concept_11', 'rank_11', 'concept_12', 'rank_12', 'concept_13', 'rank_13', 'concept_14', 'rank_14', \
-							'concept_15', 'rank_15', 'concept_16', 'rank_16', 'concept_17', 'rank_17', 'concept_18', 'rank_18',\
-							'concept_19', 'rank_19', 'concept_20', 'rank_20') )
+		self.df_industry_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'industry', 'rank_pe' ) )
+		self.df_concept_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'concept_1', 'rank_pe_1', 'concept_2', 'rank_pe_2',\
+							'concept_3', 'rank_pe_3', 'concept_4', 'rank_pe_4', 'concept_5', 'rank_pe_5', 'concept_6', 'rank_pe_6',\
+							'concept_7', 'rank_pe_7', 'concept_8', 'rank_pe_8', 'concept_9', 'rank_pe_9', 'concept_10', 'rank_pe_10',\
+							'concept_11', 'rank_pe_11', 'concept_12', 'rank_pe_12', 'concept_13', 'rank_pe_13', 'concept_14', 'rank_pe_14', \
+							'concept_15', 'rank_pe_15', 'concept_16', 'rank_pe_16', 'concept_17', 'rank_pe_17', 'concept_18', 'rank_pe_18',\
+							'concept_19', 'rank_pe_19', 'concept_20', 'rank_pe_20') )
 		self.average_industry_pe_file = self.result_path + 'pe_average_industry.xlsx'
 		self.average_concept_pe_file = self.result_path + 'pe_average_concept.xlsx'
 		self.industry_pe_rank_file = self.result_path + 'pe_rank_industry.xlsx'
@@ -125,7 +125,7 @@ class Pe():
 			tmp_df_pe_rank = tmp_df_pe.rank()
 			num_code = tmp_df_pe_rank.index.size
 			for code in tmp_df_pe_rank.index:
-				self.df_industry_pe_rank[ 'rank' ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
+				self.df_industry_pe_rank[ 'rank_pe' ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 	
 		self.save_data( self.df_industry_pe_rank, self.industry_pe_rank_file )
 
@@ -171,10 +171,10 @@ class Pe():
 			num_code = tmp_df_pe_rank.index.size
 			for code in tmp_df_pe_rank.index:
 				id_rank = 1
-				name_rank = '_'.join( [ 'rank', str( id_rank ) ] )
+				name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
 				while self.df_concept_pe_rank[ name_rank ][ code ] is not np.nan:
 					id_rank += 1
-					name_rank = '_'.join( [ 'rank', str( id_rank ) ] )
+					name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
 				self.df_concept_pe_rank[ name_rank ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 			
 		self.save_data( self.df_concept_pe_rank, self.concept_pe_rank_file )
