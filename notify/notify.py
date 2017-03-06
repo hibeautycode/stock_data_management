@@ -4,6 +4,9 @@ from data.data import Data
 from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
 from model.spill_wave import Analyse
 from model.basics import Basics
+from factor.profit import Profit
+from factor.pe import Pe
+from query.query import Query
 from pandas import DataFrame
 from time import sleep
 from multiprocessing import Queue, Process
@@ -19,29 +22,32 @@ class Notify():
 	def serve_query_request( self ):
 
 		ls_code_queried = []
+		df_model_basics = Basics().get_basics().set_index( 'code' )
 		ls_all_stock_data = Data().get_all_stock_data()
 
-		while True:
+		if SEND_EMAIL:
 
-			ls_code = Utils.receive_email_query_code()
+			while True:
 
-			LOG( 'query code:{0}'.format( ls_code ) )
+				ls_code = Utils.receive_email_query_code()
 
-			if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
-			# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
+				# LOG( 'query code:{0}'.format( ls_code ) )
+
+				if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
+				# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
+					sleep( 180 )
+					continue
+
+				ls_code_queried = ls_code
+				
+				dict_stock_info = Query().query_stock_info( ls_code, ls_all_stock_data, df_model_basics )
+
+				for ( code, info ) in dict_stock_info.items():
+					Utils.send_email( info, 'stock info ' + code )
+					# LOG( 'send stock info {0}'.format( code ) )
+
+				# 每3分钟查一次邮箱是否有查询
 				sleep( 180 )
-				continue
-
-			ls_code_queried = ls_code
-			
-			dict_stock_info = Data().query_stock_info( ls_code, ls_all_stock_data )
-
-			for ( code, info ) in dict_stock_info.items():
-				Utils.send_email( info, 'stock info ' + code )
-				LOG( 'send stock info {0}'.format( code ) )
-
-			# 每3分钟查一次邮箱是否有查询
-			sleep( 180 )
 
 
 	def notify_realtime_earnings( self ):
@@ -131,7 +137,7 @@ class Notify():
 					df_realtime_quotes = Data().get_realtime_quotes( code )				
 				
 					if float( df_realtime_quotes[ 'price' ] ) >= ( float( df_value_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) :
-						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  sell price:{3:.2f}  expect earn:{4:.2f}\n'\
+						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  sell price:{4:.2f}  expect earn:{5:.2f}\n'\
 							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
 									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
 									float( df_value_stock.loc[ index ][ 'sell_price' ] ), \
@@ -183,5 +189,16 @@ if __name__ == '__main__':
 		file_date = Utils.cur_date()
 		Data( file_date ).update_all()
 		analyse_class = Analyse( file_date )
-		#analyse_class.statistics()
-		analyse_class.find_value_stock()
+		# analyse_class.statistics()
+		
+		list_process = []
+		#list_process.append( Process( target = analyse_class.find_value_stock ) )
+		list_process.append( Process( target = Profit().calc_profit_grow ) )
+		list_process.append( Process( target = Pe().calc_pe ) )
+
+		for process in list_process:
+			process.start()
+		for process in list_process:
+			process.join()
+
+		Basics().create_basics_table()
