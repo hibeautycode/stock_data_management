@@ -19,7 +19,7 @@ class Pe():
 							'concept_7', 'rank_pe_7', 'concept_8', 'rank_pe_8', 'concept_9', 'rank_pe_9', 'concept_10', 'rank_pe_10',\
 							'concept_11', 'rank_pe_11', 'concept_12', 'rank_pe_12', 'concept_13', 'rank_pe_13', 'concept_14', 'rank_pe_14', \
 							'concept_15', 'rank_pe_15', 'concept_16', 'rank_pe_16', 'concept_17', 'rank_pe_17', 'concept_18', 'rank_pe_18',\
-							'concept_19', 'rank_pe_19', 'concept_20', 'rank_pe_20') )
+							'concept_19', 'rank_pe_19', 'concept_20', 'rank_pe_20' ) )
 		self.average_industry_pe_file = self.result_path + 'pe_average_industry.xlsx'
 		self.average_concept_pe_file = self.result_path + 'pe_average_concept.xlsx'
 		self.industry_pe_rank_file = self.result_path + 'pe_rank_industry.xlsx'
@@ -164,7 +164,7 @@ class Pe():
 				while self.df_concept_pe_rank[ name_concept ][ code ] is not np.nan:
 					id_concept += 1
 					name_concept = '_'.join( [ 'concept', str( id_concept ) ] )
-				self.df_concept_pe_rank[ name_concept ][ code ] = concept 
+				self.df_concept_pe_rank[ name_concept ][ code ] = concept
 			
 			tmp_df_pe = tmp_df_pe.set_index( 'code' )			
 			tmp_df_pe_rank = tmp_df_pe.rank()
@@ -195,12 +195,12 @@ class Pe():
 		list_process = []
 		list_process.append( Process( target = self.calc_average_industry_pe, \
 			args=( df_stock_basics, df_industry_classified ) ) )
-		# list_process.append( Process( target = self.calc_average_concept_pe, \
-		# 	args=( df_stock_basics, df_concept_classified ) ) )
+		list_process.append( Process( target = self.calc_average_concept_pe, \
+			args=( df_stock_basics, df_concept_classified ) ) )
 		list_process.append( Process( target = self.calc_industry_pe_rank, \
 			args=( df_stock_basics, df_industry_classified ) ) )
-		# list_process.append( Process( target = self.calc_concept_pe_rank, \
-		# 	args=( df_stock_basics, df_concept_classified ) ) )
+		list_process.append( Process( target = self.calc_concept_pe_rank, \
+			args=( df_stock_basics, df_concept_classified ) ) )
 
 		for process in list_process:
 			process.start()

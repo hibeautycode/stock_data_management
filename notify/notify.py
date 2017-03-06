@@ -3,10 +3,12 @@ sys.path.append( '../../stock' )
 from data.data import Data
 from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
 from model.spill_wave import Analyse
+from model.basics import Basics
 from pandas import DataFrame
 from time import sleep
 from multiprocessing import Queue, Process
 import operator as op
+import numpy as np
 
 class Notify():
 
@@ -95,13 +97,16 @@ class Notify():
 			content_notify += 'total_earn:{0:.2f}'.format( total_earn )
 			if SEND_EMAIL:
 				Utils.send_email( content_notify, 'position notification' )
-			LOG( content_notify )
-			sleep( 60 )
+				sleep( 60 * 5 )
+			else:
+				LOG( content_notify )
+				sleep( 60 )
 
 
 	def notify_investment_opportunity( self ):
 		
 		df_value_stock = Utils.read_data( Analyse().value_stock_file )
+		df_model_basics = Basics().get_basics().set_index( 'code' )
 		
 		while True:
 		
@@ -117,9 +122,7 @@ class Notify():
 				LOG( 'market close from notify_investment_opportunity' )
 				break
 			content_notify = ''
-			LOG( '*********************************' )
-			LOG( '{0}'.format( cur_time ) )
-			
+			LOG( '*********************************' )			
 			content_notify += '{0}\n'.format( cur_time )
 			for index in df_value_stock.index:
 				code = '%06d' % df_value_stock.loc[ index ][ 'code' ]
@@ -128,18 +131,30 @@ class Notify():
 					df_realtime_quotes = Data().get_realtime_quotes( code )				
 				
 					if float( df_realtime_quotes[ 'price' ] ) >= ( float( df_value_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) :
-						LOG( '{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  expect earn rate:{4:.2f}'\
+						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  sell price:{3:.2f}  expect earn:{4:.2f}\n'\
 							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
 									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
-									float( df_value_stock.loc[ index ][ 'expect_earn_rate' ] ), \
-									float( df_value_stock.loc[ index ][ 'min_earn_rate' ] ) ) )
-						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  expect earn rate:{4:.2f}\n'\
-							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
-									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
+									float( df_value_stock.loc[ index ][ 'sell_price' ] ), \
 									float( df_value_stock.loc[ index ][ 'expect_earn_rate' ] ), \
 									float( df_value_stock.loc[ index ][ 'min_earn_rate' ] ) )	
+						content_notify += '\tprofit rank:{0}\n  \tindustry:{1}  pe rank:{2}\n'.format( df_model_basics[ 'rank_profit_grow' ][ int( code ) ],\
+							df_model_basics[ 'industry' ][ int( code ) ], df_model_basics[ 'rank_pe' ][ int( code ) ] )
+
+						id_concept = 1;	id_rank = 1
+						name_concept = '_'.join( [ 'concept', str( id_concept ) ] );	name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
+						
+						while df_model_basics[ name_concept ][ int( code ) ] is not np.nan:
+							content_notify += '\tconcept:{0}  pe rank:{1}\n'.format( df_model_basics[ name_concept ][ int( code ) ], \
+								df_model_basics[ name_rank ][ int( code ) ] )
+							id_concept += 1;	id_rank += 1
+							if id_concept > 20:
+								break
+							name_concept = '_'.join( [ 'concept', str( id_concept ) ] );	name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
+						
+						content_notify += '\n'
 				except:
-					pass								
+					pass
+			LOG( content_notify )							
 			LOG( '*********************************' )
 			if SEND_EMAIL:
 			# 如果发送邮件，10分钟发一次

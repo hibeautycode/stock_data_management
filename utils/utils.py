@@ -14,7 +14,7 @@ import poplib
 SAVE_DATA = 'xls'
 SHOW_LOG = True
 SHOW_ERROR = True
-SEND_EMAIL = False
+SEND_EMAIL = True
 
 def LOG( content ):
 	if SHOW_LOG:
