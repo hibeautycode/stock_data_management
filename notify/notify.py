@@ -71,14 +71,16 @@ class Notify():
 			hour = int( cur_time.split( ':' )[ 0 ] )
 			minute = int( cur_time.split( ':' )[ 1 ] )
 			
-			if hour < 9 or ( hour == 9 and minute < 30 ) or ( hour == 11 and minute >= 30 ) or hour == 12:
-				LOG( 'market not open from notify_realtime_earnings' )
-				sleep( 60 )
-				continue
+			if hour < 9 or ( hour == 9 and minute < 30 ):
+				LOG( 'notify_realtime_earnings	morning\n{0} hours {1} minutes later market open'.format( 9 - hour, 30 - minute ) )
+				sleep( ( 9 - hour ) * 3600 - ( minute * 60 ) + 1800 )
+			elif ( hour == 11 and minute >= 30 ) or hour == 12:
+				LOG( 'notify_realtime_earnings	nooning\n{0} hours {1} minutes later market open'.format( 12 - hour, 60 - minute ) )
+				sleep( ( 13 - hour ) * 3600 - ( minute * 60 ) )
 			elif hour >= 15:
-				LOG( 'market close from notify_realtime_earnings' )
+				LOG( 'notify_realtime_earnings	market close' )
 				break
-
+			
 			content_notify = ''
 			content_notify += '{0}\n'.format( cur_time )
 			total_earn = 0
@@ -120,13 +122,16 @@ class Notify():
 			hour = int( cur_time.split( ':' )[ 0 ] )
 			minute = int( cur_time.split( ':' )[ 1 ] )
 			
-			if hour < 9 or ( hour == 9 and minute < 30 ) or ( hour == 11 and minute >= 30 ) or hour == 12:
-				LOG( 'market not open from notify_investment_opportunity' )
-				sleep( 60 )
-				continue
+			if hour < 9 or ( hour == 9 and minute < 30 ):
+				LOG( 'notify_investment_opportunity	morning\n{0} hours {1} minutes later market open'.format( 9 - hour, 30 - minute ) )
+				sleep( ( 9 - hour ) * 3600 - ( minute * 60 ) + 1800 )
+			elif ( hour == 11 and minute >= 30 ) or hour == 12:
+				LOG( 'notify_investment_opportunity	nooning\n{0} hours {1} minutes later market open'.format( 12 - hour, 60 - minute ) )
+				sleep( ( 13 - hour ) * 3600 - ( minute * 60 ) )
 			elif hour >= 15:
-				LOG( 'market close from notify_investment_opportunity' )
+				LOG( 'notify_investment_opportunity	market close' )
 				break
+				
 			content_notify = ''
 			LOG( '*********************************' )			
 			content_notify += '{0}\n'.format( cur_time )
