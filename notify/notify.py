@@ -192,7 +192,7 @@ if __name__ == '__main__':
 		# analyse_class.statistics()
 		
 		list_process = []
-		#list_process.append( Process( target = analyse_class.find_value_stock ) )
+		list_process.append( Process( target = analyse_class.find_value_stock ) )
 		list_process.append( Process( target = Profit().calc_profit_grow ) )
 		list_process.append( Process( target = Pe().calc_pe ) )
 

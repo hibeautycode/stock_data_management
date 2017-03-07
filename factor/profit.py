@@ -23,11 +23,12 @@ class Profit():
 			df_tmp =  df_profit_data.loc[ code ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True )
 			code = '%06d' % code				
 			ls_grow_ratio = []
+			num_minus_net_profit = 0
 
 			for i in range( 1, df_tmp.index.size - 4 ):
 
-				if df_tmp.iloc[ i ][ 'year' ] >= datetime.datetime.now().year - 5:
-				# 统计近4到5年的数据
+				if df_tmp.iloc[ i ][ 'year' ] >= datetime.datetime.now().year - 4:
+				# 统计近3到4年的数据
 					if df_tmp.iloc[ i ][ 'quarter' ] == 1:
 						if df_tmp.iloc[ i + 4 ][ 'quarter' ] == df_tmp.iloc[ i ][ 'quarter' ] and \
 							( df_tmp.iloc[ i + 4 ][ 'year' ] - df_tmp.iloc[ i ][ 'year' ] ) == 1:
@@ -37,6 +38,10 @@ class Profit():
 
 							ls_grow_ratio.append( ( df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i ][ 'net_profits' ] ) \
 													/ ( abs( df_tmp.iloc[ i ][ 'net_profits' ] ) + abs( df_tmp.iloc[ i + 4 ][ 'net_profits' ] ) + 0.01 ) )
+							if df_tmp.iloc[ i + 4 ][ 'net_profits' ] < 0:
+								num_minus_net_profit += 1
+							if df_tmp.iloc[ i ][ 'net_profits' ] < 0:
+								num_minus_net_profit += 1
 					else:
 						if df_tmp.iloc[ i + 4 ][ 'quarter' ] == df_tmp.iloc[ i ][ 'quarter' ] and \
 							df_tmp.iloc[ i + 4 ][ 'year' ] - df_tmp.iloc[ i ][ 'year' ] == 1 and \
@@ -51,6 +56,10 @@ class Profit():
 												df_tmp.iloc[ i ][ 'net_profits' ] + df_tmp.iloc[ i - 1 ][ 'net_profits' ] ) \
 												/ ( abs( df_tmp.iloc[ i ][ 'net_profits' ] - df_tmp.iloc[ i - 1 ][ 'net_profits' ] ) + \
 												abs( df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i + 3 ][ 'net_profits' ] ) + 0.001 ) )
+							if df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i + 3 ][ 'net_profits' ] < 0:
+								num_minus_net_profit += 1
+							if df_tmp.iloc[ i ][ 'net_profits' ] - df_tmp.iloc[ i - 1 ][ 'net_profits' ] < 0:
+								num_minus_net_profit += 1
 					
 			if len( ls_grow_ratio ) <= 0:
 				continue
@@ -61,19 +70,20 @@ class Profit():
 				if ls_grow_ratio[ i ] < 0:
 					# 利润增长下降惩罚因子
 					eta = 3.0
-					ls_weight.append( eta * np.exp( 1 - i * 0.25 ) )
+					ls_weight.append( eta * np.exp( 1.5 - i * ( i * 0.02 + 0.25 ) ) )
 				else:
-					ls_weight.append( np.exp( 1 - i * 0.25 ) )
+					ls_weight.append( np.exp( 1.5 - i * ( i * 0.02 + 0.25 ) ) )
 			
 			ls_weight.reverse()
 			arr_weight = np.array( ls_weight ) / sum( np.array( ls_weight ) )
 			arr_grow_ratio = np.array( ls_grow_ratio )
 
-			# np.log( 3.0 + len( arr_grow_ratio ) ) 季度数平衡因子;		float( np.var( arr_grow_ratio ) ) 方差-震荡因子		
+			# np.log( 3.0 + len( arr_grow_ratio ) ) 季度数平衡因子;		float( np.var( arr_grow_ratio ) ) 方差-震荡因子;
+			# ( 1.0 - num_minus_net_profit / 30 ) 将亏损公司排名靠后	
 			profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) * np.log( 5.5 + len( arr_grow_ratio ) ) \
-				/ ( 0.2 + float( np.var( arr_grow_ratio ) ) )
+				/ ( 0.2 + float( np.var( arr_grow_ratio ) ) ) * ( 1.0 - num_minus_net_profit / 30 )
 
-			# LOG( '{0} {1} {2}'.format( code, profit_grow, float( np.var( arr_grow_ratio ) ) ) )
+			# LOG( '{0} {1} {2}'.format( code, profit_grow, ls_weight ) )
 			name = df_tmp.iloc[ 0 ][ 'name' ]
 			ls_tmp.append( [ code, name, profit_grow, np.nan ] )
 

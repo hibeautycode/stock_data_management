@@ -17,7 +17,7 @@ class commit_git():
 			cur_dst_item = os.path.join( dst_dir, item )
 			cur_src_item = os.path.join( src_dir, item )
 
-			if os.path.isdir( cur_src_item ) and os.path.basename( cur_src_item ) in [ 'data', 'factor', 'utils', 'notify' ]:			
+			if os.path.isdir( cur_src_item ) and os.path.basename( cur_src_item ) in [ 'data', 'factor', 'utils', 'notify', 'query', 'trade' ]:			
 				self.move_file( cur_src_item, cur_dst_item )
 
 			elif os.path.isfile( cur_src_item )  and os.path.basename( cur_src_item ).split( '.' )[ -1 ] == 'py' and \

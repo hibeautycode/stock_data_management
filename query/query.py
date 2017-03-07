@@ -108,7 +108,7 @@ class Query():
 					divi = divi.to_frame().T
 					
 				if type( divi ) == pd.DataFrame:
-					divi = divi.sort_values( by = 'year', axis = 0, ascending = True )
+					divi = divi.sort_values( by = [ 'year', 'report_date' ], axis = 0, ascending = True )
 					for id in range( divi.index.size ):
 						content += '{0}  {1}  {2:-12d}  {3:-16d}\n'.format( divi.iloc[ id ][ 'year' ], divi.iloc[ id ][ 'report_date' ], int( divi.iloc[ id ][ 'divi' ] ), \
 						int( divi.iloc[ id ][ 'shares' ] ) )
@@ -152,7 +152,7 @@ class Query():
 			try:
 				df_news = ts.get_notices( code )
 				content += '\nnotice:\n'
-				for index in df_news.index:
+				for index in range( 0, 10 ): # df_news.index:
 					content += '{3}、{0}\t{1}\tdate:{2}\n'.format( df_news[ 'title' ][ index ], \
 						df_news[ 'type' ][ index ], df_news[ 'date' ][ index ], index + 1 )
 					if index < 3:
