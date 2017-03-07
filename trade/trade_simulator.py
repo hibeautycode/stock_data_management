@@ -40,13 +40,15 @@ class Trade_Simulator():
 			minute = int( cur_time.split( ':' )[ 1 ] )
 			
 			if hour < 9 or ( hour == 9 and minute < 30 ):
-				LOG( 'Trade_Simulator	morning\n{0} hours {1} minutes later market open'.format( 9 - hour, 30 - minute ) )
-				sleep( ( 9 - hour ) * 3600 - ( minute * 60 ) + 1800 )
+				LOG( 'Trade_Simulator:	morning\n{0} hours {1} minutes later market open'\
+					.format( int( Utils.now2market_morning_time() / 3600 ), int( Utils.now2market_morning_time() % 3600 / 60 ) ) )
+				sleep( Utils.now2market_morning_time() )
 			elif ( hour == 11 and minute >= 30 ) or hour == 12:
-				LOG( 'Trade_Simulator	nooning\n{0} hours {1} minutes later market open'.format( 12 - hour, 60 - minute ) )
-				sleep( ( 13 - hour ) * 3600 - ( minute * 60 ) )
+				LOG( 'Trade_Simulator:	nooning\n{0} hours {1} minutes later market open'
+					.format( int( Utils.now2market_nooning_time() / 3600 ), int( Utils.now2market_nooning_time() % 3600 / 60 ) ) )
+				sleep( Utils.now2market_morning_time() )
 			elif hour >= 15:
-				LOG( 'Trade_Simulator	market close' )
+				LOG( 'Trade_Simulator:	market close' )
 				break
 
 			# sell

@@ -37,6 +37,14 @@ class Utils():
 		quarter = int( ( int( list_res[1] ) - 1 ) / 3 + 1 )	
 		list_res.append( quarter )		
 		return list_res
+
+	def now2market_morning_time():
+
+		return ( datetime.datetime.strptime('09:30:00', '%H:%M:%S') - datetime.datetime.now() ).seconds
+
+	def now2market_nooning_time():
+
+		return ( datetime.datetime.strptime('13:00:00', '%H:%M:%S') - datetime.datetime.now() ).seconds
 	
 	def cur_date():
 
