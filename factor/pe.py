@@ -47,7 +47,10 @@ class Pe():
 							continue
 					if basics[ 'esp' ] == 0:
 						continue
-					ls_pe.append( float( cur_price / basics[ 'esp' ] ) )
+					if float( cur_price / basics[ 'esp' ] ) < 0:
+						ls_pe.append( 1000000 / abs( float( cur_price / basics[ 'esp' ] ) ) )
+					else:
+						ls_pe.append( float( cur_price / basics[ 'esp' ] ) )
 				except:
 					continue
 			array_pe = np.array( ls_pe )
@@ -79,7 +82,10 @@ class Pe():
 							continue
 					if basics[ 'esp' ] == 0:
 						continue
-					ls_pe.append( float( cur_price / basics[ 'esp' ] ) )
+					if float( cur_price / basics[ 'esp' ] ) < 0:
+						ls_pe.append( 1000000.0 / abs( float( cur_price / basics[ 'esp' ] ) ) )
+					else:
+						ls_pe.append( float( cur_price / basics[ 'esp' ] ) )
 				except:
 					continue
 
@@ -118,7 +124,10 @@ class Pe():
 						continue
 				except:
 					continue
-				tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, float( cur_price / basics[ 'esp' ] ) ]
+				if float( cur_price / basics[ 'esp' ] ) < 0:
+					tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, 1000000.0 / abs( float( cur_price / basics[ 'esp' ] ) ) ]
+				else:
+					tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, float( cur_price / basics[ 'esp' ] ) ]
 				self.df_industry_pe_rank[ 'industry' ][ code ] = industry 
 
 			tmp_df_pe = tmp_df_pe.set_index( 'code' )			
@@ -158,7 +167,10 @@ class Pe():
 						continue
 				except:
 					continue
-				tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, float( cur_price / basics[ 'esp' ] ) ]
+				if float( cur_price / basics[ 'esp' ] ) < 0:
+					tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, 1000000.0 / abs( float( cur_price / basics[ 'esp' ] ) ) ]
+				else:
+					tmp_df_pe.loc[ tmp_df_pe.index.size ] = [ code, float( cur_price / basics[ 'esp' ] ) ]
 				id_concept = 1
 				name_concept = '_'.join( [ 'concept', str( id_concept ) ] )
 				while self.df_concept_pe_rank[ name_concept ][ code ] is not np.nan:
