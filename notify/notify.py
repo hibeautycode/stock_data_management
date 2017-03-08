@@ -31,7 +31,7 @@ class Notify():
 
 				ls_code = Utils.receive_email_query_code()
 
-				# LOG( 'query code:{0}'.format( ls_code ) )
+				LOG( 'query code:{0}'.format( ls_code ) )
 
 				if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
 				# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
@@ -40,7 +40,7 @@ class Notify():
 
 				ls_code_queried = ls_code
 				
-				dict_stock_info = Query().query_stock_info( ls_code, ls_all_stock_data, df_model_basics )
+				dict_stock_info = Query.query_stock_info( ls_code, ls_all_stock_data, df_model_basics )
 
 				for ( code, info ) in dict_stock_info.items():
 					Utils.send_email( info, 'stock info ' + code )
@@ -135,7 +135,7 @@ class Notify():
 			elif hour >= 15:
 				LOG( 'notify_investment_opportunity:	market close' )
 				break
-				
+
 			content_notify = ''
 			LOG( '*********************************' )			
 			content_notify += '{0}\n'.format( cur_time )

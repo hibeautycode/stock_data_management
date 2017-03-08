@@ -31,8 +31,7 @@ class Trade_Simulator():
 			self.remain_money = self.df_trade.loc[ self.df_trade.index.size - 1 ][ 'remain' ]
 		if os.path.exists( self.__file_path_position ):
 			self.df_position = Utils.read_data( self.__file_path_position )
-		
-		
+				
 		while True:
 
 			cur_time = Utils.cur_time()
