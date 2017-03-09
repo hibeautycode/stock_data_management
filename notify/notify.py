@@ -137,7 +137,6 @@ class Notify():
 				break
 
 			content_notify = ''
-			LOG( '*********************************' )			
 			content_notify += '{0}\n'.format( cur_time )
 			for index in df_value_stock.index:
 				code = '%06d' % df_value_stock.loc[ index ][ 'code' ]
@@ -169,13 +168,14 @@ class Notify():
 						content_notify += '\n'
 				except:
 					pass
-			LOG( '*********************************' )
 			if SEND_EMAIL:
 			# 如果发送邮件，10分钟发一次
 				Utils.send_email( content_notify, 'opportunity notification' )
 				sleep( 10 * 60 )
 			else:
-				LOG( content_notify )							
+				LOG( '*********************************' )			
+				LOG( content_notify )
+				LOG( '*********************************' )										
 				sleep( 120 )
 
 if __name__ == '__main__':
