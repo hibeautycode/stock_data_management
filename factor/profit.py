@@ -5,12 +5,13 @@ from data.data import Data
 from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
 import pandas as pd
 from multiprocessing import Queue, Process
+from factor.base import Base
 
-class Profit():
+class Profit( Base ):
 
 	def __init__( self ):
 
-		self.result_path = '../factor/result/'
+		Base.__init__( self )
 		self.df_profit_grow = pd.DataFrame( columns = ( 'code', 'name', 'profit_grow', 'rank' ) )
 		self.profit_grow_file = self.result_path + 'profit_grow.xlsx'
 
@@ -145,20 +146,15 @@ class Profit():
 		
 		tmp_profit_grow_rank = self.df_profit_grow.rank( ascending = False )
 		for index in self.df_profit_grow.index:
-			self.df_profit_grow[ 'profit_grow' ][ index ] = float( '{0:.2f}'.format( self.df_profit_grow[ 'profit_grow' ][ index ] ) )
-			self.df_profit_grow[ 'rank' ][ index ] = '/'.join( [ str( int( tmp_profit_grow_rank[ 'profit_grow' ][ index ] ) ),\
-													str( self.df_profit_grow.index.size ) ] )
-		self.save_data( self.df_profit_grow, self.profit_grow_file )
+			try:
+				self.df_profit_grow[ 'profit_grow' ][ index ] = float( '{0:.2f}'.format( self.df_profit_grow[ 'profit_grow' ][ index ] ) )
+				self.df_profit_grow[ 'rank' ][ index ] = '/'.join( [ str( int( tmp_profit_grow_rank[ 'profit_grow' ][ index ] ) ),\
+														str( self.df_profit_grow.index.size ) ] )
+			except: pass
+		Base.save_data( self, self.df_profit_grow, self.profit_grow_file )
 
 	def get_profit_grow( self ):
 		return Utils.read_data( self.profit_grow_file )
-
-	def save_data( self, df_data, file_path_name ):
-	
-		if not os.path.exists( self.result_path ):
-			os.mkdir( self.result_path )
-		Utils.save_data( df_data, file_path_name )
-
 
 if __name__ == '__main__':
 

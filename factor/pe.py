@@ -5,12 +5,13 @@ from data.data import Data
 from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
 import pandas as pd
 from multiprocessing import Queue, Process
+from factor.base import Base
 
-class Pe():
+class Pe( Base ):
 
 	def __init__( self ):
 
-		self.result_path = '../factor/result/'
+		Base.__init__( self )
 		self.df_average_industry_pe = pd.DataFrame( columns = ( 'industry', 'average_pe' ) )
 		self.df_average_concept_pe = pd.DataFrame( columns = ( 'concept', 'average_pe' ) )
 		self.df_industry_pe_rank = pd.DataFrame( columns = ( 'code', 'name', 'industry', 'rank_pe' ) )
@@ -58,7 +59,7 @@ class Pe():
 			self.df_average_industry_pe.loc[ self.df_average_industry_pe.index.size ] = [ industry, average_pe ]
 
 		self.df_average_industry_pe = self.df_average_industry_pe.set_index( 'industry' )
-		self.save_data( self.df_average_industry_pe, self.average_industry_pe_file )		
+		Base.save_data( self, self.df_average_industry_pe, self.average_industry_pe_file )		
 	
 	@Utils.func_timer
 	def calc_average_concept_pe( self, df_stock_basics, df_concept_classified ):
@@ -94,7 +95,7 @@ class Pe():
 			self.df_average_concept_pe.loc[ self.df_average_concept_pe.index.size ] = [ concept, average_pe ]
 
 		self.df_average_concept_pe = self.df_average_concept_pe.set_index( 'concept' )
-		self.save_data( self.df_average_concept_pe, self.average_concept_pe_file )
+		Base.save_data( self, self.df_average_concept_pe, self.average_concept_pe_file )
 
 	@Utils.func_timer
 	def calc_industry_pe_rank( self, df_stock_basics, df_industry_classified ):
@@ -136,7 +137,7 @@ class Pe():
 			for code in tmp_df_pe_rank.index:
 				self.df_industry_pe_rank[ 'rank_pe' ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 	
-		self.save_data( self.df_industry_pe_rank, self.industry_pe_rank_file )
+		Base.save_data( self, self.df_industry_pe_rank, self.industry_pe_rank_file )
 
 	@Utils.func_timer
 	def calc_concept_pe_rank( self, df_stock_basics, df_concept_classified ):
@@ -189,7 +190,7 @@ class Pe():
 					name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
 				self.df_concept_pe_rank[ name_rank ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 			
-		self.save_data( self.df_concept_pe_rank, self.concept_pe_rank_file )
+		Base.save_data( self, self.df_concept_pe_rank, self.concept_pe_rank_file )
 
 	def calc_pe( self ):
 
@@ -230,13 +231,6 @@ class Pe():
 
 	def get_concept_pe_rank( self ):
 		return Utils.read_data( self.concept_pe_rank_file )
-
-	def save_data( self, df_data, file_path_name ):
-	
-		if not os.path.exists( self.result_path ):
-			os.mkdir( self.result_path )
-		Utils.save_data( df_data, file_path_name )
-
 
 if __name__ == '__main__':
 
