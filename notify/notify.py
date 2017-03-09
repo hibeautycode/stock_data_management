@@ -31,7 +31,7 @@ class Notify():
 
 				ls_code = Utils.receive_email_query_code()
 
-				LOG( 'query code:{0}'.format( ls_code ) )
+				# LOG( 'query code:{0}'.format( ls_code ) )
 
 				if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
 				# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
@@ -78,7 +78,7 @@ class Notify():
 			elif ( hour == 11 and minute >= 30 ) or hour == 12:
 				LOG( 'notify_realtime_earnings:	nooning\n{0} hours {1} minutes later market open'
 					.format( int( Utils.now2market_nooning_time() / 3600 ), int( Utils.now2market_nooning_time() % 3600 / 60 ) ) )
-				sleep( Utils.now2market_morning_time() )
+				sleep( Utils.now2market_nooning_time() )
 			elif hour >= 15:
 				LOG( 'notify_realtime_earnings:	market close' )
 				break
@@ -131,7 +131,7 @@ class Notify():
 			elif ( hour == 11 and minute >= 30 ) or hour == 12:
 				LOG( 'notify_investment_opportunity:	nooning\n{0} hours {1} minutes later market open'
 					.format( int( Utils.now2market_nooning_time() / 3600 ), int( Utils.now2market_nooning_time() % 3600 / 60 ) ) )
-				sleep( Utils.now2market_morning_time() )
+				sleep( Utils.now2market_nooning_time() )
 			elif hour >= 15:
 				LOG( 'notify_investment_opportunity:	market close' )
 				break
@@ -169,13 +169,13 @@ class Notify():
 						content_notify += '\n'
 				except:
 					pass
-			LOG( content_notify )							
 			LOG( '*********************************' )
 			if SEND_EMAIL:
 			# 如果发送邮件，10分钟发一次
 				Utils.send_email( content_notify, 'opportunity notification' )
 				sleep( 10 * 60 )
 			else:
+				LOG( content_notify )							
 				sleep( 120 )
 
 if __name__ == '__main__':
