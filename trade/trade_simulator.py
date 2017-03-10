@@ -17,7 +17,7 @@ class Trade_Simulator():
 		self.__file_path_trade = '../trade/position/simulate_trade_flow.xlsx'
 		self.__file_path_position = '../trade/position/simulate_position.xlsx'
 		if model == 'spill_wave':
-			self.df_value_stock = Utils.read_data( Analyse().value_stock_file )
+			self.df_model_stock = Utils.read_data( Analyse().spill_wave_stock_file )
 		else:
 			ERROR( 'model select error.' )
 		self.initial_fund = 200000.0	# 初始投资额
@@ -76,9 +76,9 @@ class Trade_Simulator():
 				sleep( 1 )
 
 			# buy
-			for index in self.df_value_stock.index:
-				code = '%06d' % int( self.df_value_stock.loc[ index ][ 'code' ] )
-				name = self.df_value_stock.loc[ index ][ 'name' ]
+			for index in self.df_model_stock.index:
+				code = '%06d' % int( self.df_model_stock.loc[ index ][ 'code' ] )
+				name = self.df_model_stock.loc[ index ][ 'name' ]
 				
 				# 每只在仓股不再买入
 				if int( code ) in self.df_position[ 'code' ].to_dict().values() or \
@@ -87,9 +87,9 @@ class Trade_Simulator():
 
 				try:
 					df_realtime_quotes = Data().get_realtime_quotes( code )
-					if float( df_realtime_quotes[ 'price' ] ) >= ( float( self.df_value_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) and \
-						float( df_realtime_quotes[ 'price' ] ) <= ( float( self.df_value_stock.loc[ index ][ 'buy_price' ] ) * 1.002 ) and \
-						float( self.df_value_stock.loc[ index ][ 'expect_earn_rate' ] ) >= 0.2:
+					if float( df_realtime_quotes[ 'price' ] ) >= ( float( self.df_model_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) and \
+						float( df_realtime_quotes[ 'price' ] ) <= ( float( self.df_model_stock.loc[ index ][ 'buy_price' ] ) * 1.002 ) and \
+						float( self.df_model_stock.loc[ index ][ 'expect_earn_rate' ] ) >= 0.2:
 
 						try:
 							if float( df_model_basics[ 'rank_profit_grow' ][ int( code ) ].split( '/' )[ 0 ] ) / \
@@ -102,7 +102,7 @@ class Trade_Simulator():
 						# 至少剩余买一手的资金
 						if 100 * float( df_realtime_quotes[ 'price' ] ) <= self.remain_money:
 
-							buy_hand_num = int( min( self.initial_fund * float( self.df_value_stock.loc[ index ][ 'expect_earn_rate' ] ) * 0.5 / float( df_realtime_quotes[ 'price' ] ) / 100, \
+							buy_hand_num = int( min( self.initial_fund * float( self.df_model_stock.loc[ index ][ 'expect_earn_rate' ] ) * 0.5 / float( df_realtime_quotes[ 'price' ] ) / 100, \
 											self.max_buy_each_stock / float( df_realtime_quotes[ 'price' ] ) / 100 ) )
 							if self.df_trade.index.size >= 1:
 								total_earn = self.df_trade.loc[ self.df_trade.index.size - 1 ][ 'total_earn' ]
@@ -112,7 +112,7 @@ class Trade_Simulator():
 							self.df_trade.loc[ self.df_trade.index.size ] = [ ' '.join( [ Utils.cur_date(), Utils.cur_time() ] ), code, name, 'buy', \
 								buy_hand_num * 100, total_earn, self.remain_money ]
 							self.df_position.loc[ self.df_position.index.size ] = [ code, name, Utils.cur_date(), float( df_realtime_quotes[ 'price' ] ), \
-								float( df_realtime_quotes[ 'price' ] ) * ( 0.2 * float( self.df_value_stock.loc[ index ][ 'expect_earn_rate' ] ) + 1.0 ), \
+								float( df_realtime_quotes[ 'price' ] ) * ( 0.2 * float( self.df_model_stock.loc[ index ][ 'expect_earn_rate' ] ) + 1.0 ), \
 								buy_hand_num * 100, 0 ]
 					sleep( 1 )
 				except:

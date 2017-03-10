@@ -28,7 +28,7 @@ class Profit( Base ):
 
 			for i in range( 1, df_tmp.index.size - 4 ):
 
-				if df_tmp.iloc[ i ][ 'year' ] >= datetime.datetime.now().year - 4:
+				if df_tmp.iloc[ i ][ 'year' ] >= datetime.datetime.now().year - 3:
 				# 统计近3到4年的数据
 					if df_tmp.iloc[ i ][ 'quarter' ] == 1:
 						if df_tmp.iloc[ i + 4 ][ 'quarter' ] == df_tmp.iloc[ i ][ 'quarter' ] and \
@@ -79,10 +79,10 @@ class Profit( Base ):
 			arr_weight = np.array( ls_weight ) / sum( np.array( ls_weight ) )
 			arr_grow_ratio = np.array( ls_grow_ratio )
 
-			# np.log( 3.0 + len( arr_grow_ratio ) ) 季度数平衡因子;		float( np.var( arr_grow_ratio ) ) 方差-震荡因子;
+			# np.log( 5.5 + len( arr_grow_ratio ) ) 季度数平衡因子;		float( 0.2 + np.var( arr_grow_ratio ) ) 方差-震荡因子;
 			# ( 1.0 - num_minus_net_profit / 30 ) 将亏损公司排名靠后	
 			profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) * np.log( 5.5 + len( arr_grow_ratio ) ) \
-				/ ( 0.2 + float( np.var( arr_grow_ratio ) ) ) * ( 1.0 - num_minus_net_profit / 30 )
+				/ ( 0.3 + float( np.var( arr_grow_ratio ) ) ) * ( 1.0 - num_minus_net_profit / 30 )
 
 			# LOG( '{0} {1} {2}'.format( code, profit_grow, ls_weight ) )
 			name = df_tmp.iloc[ 0 ][ 'name' ]

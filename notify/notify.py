@@ -115,7 +115,7 @@ class Notify():
 
 	def notify_investment_opportunity( self ):
 		
-		df_value_stock = Utils.read_data( Analyse().value_stock_file )
+		df_spill_wave_stock = Utils.read_data( Analyse().spill_wave_stock_file )
 		df_model_basics = Basics().get_basics().set_index( 'code' )
 		
 		while True:
@@ -138,19 +138,19 @@ class Notify():
 
 			content_notify = ''
 			content_notify += '{0}\n'.format( cur_time )
-			for index in df_value_stock.index:
-				code = '%06d' % df_value_stock.loc[ index ][ 'code' ]
-				name = df_value_stock.loc[ index ][ 'name' ]
+			for index in df_spill_wave_stock.index:
+				code = '%06d' % df_spill_wave_stock.loc[ index ][ 'code' ]
+				name = df_spill_wave_stock.loc[ index ][ 'name' ]
 				try:
 					df_realtime_quotes = Data().get_realtime_quotes( code )				
 				
-					if float( df_realtime_quotes[ 'price' ] ) >= ( float( df_value_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) :
+					if float( df_realtime_quotes[ 'price' ] ) >= ( float( df_spill_wave_stock.loc[ index ][ 'buy_price' ] ) * 0.99 ) :
 						content_notify += '-{0}  {1}  cur price:{2:.2f}  buy price:{3:.2f}  sell price:{4:.2f}  expect earn:{5:.2f}\n'\
 							.format( code, name, float( df_realtime_quotes[ 'price' ] ), \
-									float( df_value_stock.loc[ index ][ 'buy_price' ] ), \
-									float( df_value_stock.loc[ index ][ 'sell_price' ] ), \
-									float( df_value_stock.loc[ index ][ 'expect_earn_rate' ] ), \
-									float( df_value_stock.loc[ index ][ 'min_earn_rate' ] ) )	
+									float( df_spill_wave_stock.loc[ index ][ 'buy_price' ] ), \
+									float( df_spill_wave_stock.loc[ index ][ 'sell_price' ] ), \
+									float( df_spill_wave_stock.loc[ index ][ 'expect_earn_rate' ] ), \
+									float( df_spill_wave_stock.loc[ index ][ 'min_earn_rate' ] ) )	
 						content_notify += '\tprofit rank:{0}\n  \tindustry:{1}  pe rank:{2}\n'.format( df_model_basics[ 'rank_profit_grow' ][ int( code ) ],\
 							df_model_basics[ 'industry' ][ int( code ) ], df_model_basics[ 'rank_pe' ][ int( code ) ] )
 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
 		# analyse_class.statistics()
 		
 		list_process = []
-		list_process.append( Process( target = analyse_class.find_value_stock ) )
+		list_process.append( Process( target = analyse_class.find_spill_wave_stock ) )
 		list_process.append( Process( target = Profit().calc_profit_grow ) )
 		list_process.append( Process( target = Pe().calc_pe ) )
 
