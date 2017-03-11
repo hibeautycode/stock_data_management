@@ -10,7 +10,6 @@ from factor.base import Base
 class Profit( Base ):
 
 	def __init__( self ):
-
 		Base.__init__( self )
 		self.df_profit_grow = pd.DataFrame( columns = ( 'code', 'name', 'profit_grow', 'rank' ) )
 		self.profit_grow_file = self.result_path + 'profit_grow.xlsx'
@@ -24,56 +23,60 @@ class Profit( Base ):
 			df_tmp =  df_profit_data.loc[ code ].sort_values( by = [ 'year', 'quarter' ], axis = 0, ascending = True )
 			code = '%06d' % code				
 			ls_grow_ratio = []
+			ls_year_grow_ratio = [ [], [], [], [] ]
 			num_minus_net_profit = 0
 
-			for i in range( 1, df_tmp.index.size - 4 ):
+			for year in range( datetime.datetime.now().year - 5, datetime.datetime.now().year ):
+			# 统计近3到4年的数据
+				for quarter in range( 1, 5 ):
+					try:
+						ls_df_year = [ df_tmp[ df_tmp.year == year ], df_tmp[ df_tmp.year == year + 1 ] ]
+						ls_quarter_profit = [ ls_df_year[ 0 ][ ls_df_year[ 0 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ], \
+											  ls_df_year[ 1 ][ ls_df_year[ 1 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ] ]
+						# 按照各个季度利润计算
+						# if quarter == 1:
+						# 	ls_quarter_profit = [ ls_df_year[ 0 ][ ls_df_year[ 0 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ], \
+						# 					  ls_df_year[ 1 ][ ls_df_year[ 1 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ] ]
+						# else:
+						# 	ls_quarter_profit = [ ls_df_year[ 0 ][ ls_df_year[ 0 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ] \
+						# 		- ls_df_year[ 0 ][ ls_df_year[ 0 ].quarter == quarter - 1 ].loc[ int( code ) ][ 'net_profits' ], \
+						# 		ls_df_year[ 1 ][ ls_df_year[ 1 ].quarter == quarter ].loc[ int( code ) ][ 'net_profits' ]\
+						# 		- ls_df_year[ 1 ][ ls_df_year[ 1 ].quarter == quarter - 1 ].loc[ int( code ) ][ 'net_profits' ] ]
+						if np.isnan( ls_quarter_profit[ 1 ] ) or np.isnan( ls_quarter_profit[ 0 ] ):
+							continue
+						ls_grow_ratio.append( ( ls_quarter_profit[ 1 ] - ls_quarter_profit[ 0 ] ) \
+								/ ( abs( ls_quarter_profit[ 1 ] ) + abs( ls_quarter_profit[ 0 ] ) ) )
+						if ls_quarter_profit[ 1 ] < 0:
+							num_minus_net_profit += 1
+						if ls_quarter_profit[ 0 ] < 0:
+							num_minus_net_profit += 1
 
-				if df_tmp.iloc[ i ][ 'year' ] >= datetime.datetime.now().year - 3:
-				# 统计近3到4年的数据
-					if df_tmp.iloc[ i ][ 'quarter' ] == 1:
-						if df_tmp.iloc[ i + 4 ][ 'quarter' ] == df_tmp.iloc[ i ][ 'quarter' ] and \
-							( df_tmp.iloc[ i + 4 ][ 'year' ] - df_tmp.iloc[ i ][ 'year' ] ) == 1:
-						
-							if np.isnan( df_tmp.iloc[ i ][ 'net_profits' ] ) or np.isnan( df_tmp.iloc[ i + 4 ][ 'net_profits' ] ):
-								continue
+						ls_year_grow_ratio[ quarter - 1 ].append( abs( ls_quarter_profit[ 1 ] - ls_quarter_profit[ 0 ] ) \
+							/ min( abs( ls_quarter_profit[ 1 ] ), abs( ls_quarter_profit[ 0 ] ) ) )
+					except:
+						continue
 
-							ls_grow_ratio.append( ( df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i ][ 'net_profits' ] ) \
-													/ ( abs( df_tmp.iloc[ i ][ 'net_profits' ] ) + abs( df_tmp.iloc[ i + 4 ][ 'net_profits' ] ) + 0.01 ) )
-							if df_tmp.iloc[ i + 4 ][ 'net_profits' ] < 0:
-								num_minus_net_profit += 1
-							if df_tmp.iloc[ i ][ 'net_profits' ] < 0:
-								num_minus_net_profit += 1
-					else:
-						if df_tmp.iloc[ i + 4 ][ 'quarter' ] == df_tmp.iloc[ i ][ 'quarter' ] and \
-							df_tmp.iloc[ i + 4 ][ 'year' ] - df_tmp.iloc[ i ][ 'year' ] == 1 and \
-							df_tmp.iloc[ i + 3 ][ 'quarter' ] == df_tmp.iloc[ i - 1 ][ 'quarter' ] and \
-							df_tmp.iloc[ i + 3 ][ 'year' ] - df_tmp.iloc[ i - 1 ][ 'year' ] == 1 and \
-							df_tmp.iloc[ i + 4 ][ 'quarter' ] - df_tmp.iloc[ i + 3 ][ 'quarter' ] == 1:
-
-							if np.isnan( df_tmp.iloc[ i ][ 'net_profits' ] ) or np.isnan( df_tmp.iloc[ i + 4 ][ 'net_profits' ] ):
-								continue
-
-							ls_grow_ratio.append( ( df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i + 3 ][ 'net_profits' ] - \
-												df_tmp.iloc[ i ][ 'net_profits' ] + df_tmp.iloc[ i - 1 ][ 'net_profits' ] ) \
-												/ ( abs( df_tmp.iloc[ i ][ 'net_profits' ] - df_tmp.iloc[ i - 1 ][ 'net_profits' ] ) + \
-												abs( df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i + 3 ][ 'net_profits' ] ) + 0.001 ) )
-							if df_tmp.iloc[ i + 4 ][ 'net_profits' ] - df_tmp.iloc[ i + 3 ][ 'net_profits' ] < 0:
-								num_minus_net_profit += 1
-							if df_tmp.iloc[ i ][ 'net_profits' ] - df_tmp.iloc[ i - 1 ][ 'net_profits' ] < 0:
-								num_minus_net_profit += 1
-					
 			if len( ls_grow_ratio ) <= 0:
 				continue
+			# 突变因子
+			factor_mutation = 1.0
+			if len( ls_grow_ratio ) < 4:
+			# 刚上市股票给予一定平衡
+				factor_mutation = 1.2
+			for ls_quarter in ls_year_grow_ratio:
+			# 削减部分合并报表和募集的股票影响分析
+				for r in ls_quarter:
+					if r >= 8.0:
+						factor_mutation += r / 8.0
 			ls_weight = []
-
 			# 指数赋权
 			for i in range( len( ls_grow_ratio ) ):
 				if ls_grow_ratio[ i ] < 0:
 					# 利润增长下降惩罚因子
 					eta = 3.0
-					ls_weight.append( eta * np.exp( 1.5 - i * ( i * 0.02 + 0.25 ) ) )
+					ls_weight.append( eta * np.exp( 1.5 - i * ( i * 0.05 + 0.25 ) ) )
 				else:
-					ls_weight.append( np.exp( 1.5 - i * ( i * 0.02 + 0.25 ) ) )
+					ls_weight.append( np.exp( 1.5 - i * ( i * 0.05 + 0.25 ) ) )
 			
 			ls_weight.reverse()
 			arr_weight = np.array( ls_weight ) / sum( np.array( ls_weight ) )
@@ -81,8 +84,16 @@ class Profit( Base ):
 
 			# np.log( 5.5 + len( arr_grow_ratio ) ) 季度数平衡因子;		float( 0.2 + np.var( arr_grow_ratio ) ) 方差-震荡因子;
 			# ( 1.0 - num_minus_net_profit / 30 ) 将亏损公司排名靠后	
-			profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) * np.log( 5.5 + len( arr_grow_ratio ) ) \
-				/ ( 0.3 + float( np.var( arr_grow_ratio ) ) ) * ( 1.0 - num_minus_net_profit / 30 )
+			# profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) * np.log( 5.5 + len( arr_grow_ratio ) ) \
+			# 	/ np.exp( 2.0 * float( np.var( arr_grow_ratio ) ) ) * ( 1.0 - num_minus_net_profit / 20 )
+
+			profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) \
+				/ factor_mutation / float( 0.3 + np.var( arr_grow_ratio ) ) * ( 1.0 - num_minus_net_profit / 20 )
+
+			if code in [ '002196', '300376', '002460', '002230', '002394' ]:
+				LOG( '{3} grow:{0}, factor_mutation:{1}, minus:{2}, var:{4}, ls_grow_ratio:{5}\n'.format( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ), \
+					factor_mutation, ( 1.0 - num_minus_net_profit / 30 ), code, float( 0.3 + np.var( arr_grow_ratio ) ), \
+					ls_grow_ratio ) )
 
 			# LOG( '{0} {1} {2}'.format( code, profit_grow, ls_weight ) )
 			name = df_tmp.iloc[ 0 ][ 'name' ]
