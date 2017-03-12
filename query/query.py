@@ -1,10 +1,11 @@
-import sys, os, re, types
+import re
+import sys
+
 sys.path.append( '../../stock' )
 from data.data import Data
-from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
+from common.utils import LOG, ERROR
 from model.basics import Basics
 import pandas as pd
-from multiprocessing import Process
 import numpy as np
 import tushare as ts
 
@@ -189,4 +190,3 @@ if __name__ == '__main__':
 				for index in range( int( str_input.split()[ 1 ] ), int( str_input.split()[ 2 ] ) ):
 					content += '{0}、{1}\t{2}\n'.format( index, df_latest_news[ 'title' ][ index ], df_latest_news[ 'time' ][ index ] )
 			LOG( content )
-		

@@ -1,8 +1,8 @@
-import sys, os
+import sys
+
 sys.path.append( '../../stock' )
 from data.data import Data
-from utils.utils import Utils, LOG, ERROR
-import tushare as ts
+from common.utils import Utils, LOG, ERROR
 import pandas as pd
 from factor.base import Base
 

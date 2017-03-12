@@ -1,14 +1,14 @@
 import sys
 sys.path.append( '../../stock' )
-from multiprocessing import Queue, Process
-from utils.utils import Utils, LOG, ERROR
+from multiprocessing import Process
+
 
 class Base( object ):
 
 	def __init__( self ):
 		pass
 
-	def multiprocessing_for_single_func( target_func, dict_func_args = {}, num_process = 3 ):
+	def multiprocessing_for_single_func( target_func, dict_func_args = {}, num_process = 10 ):
 
 		list_process = []
 		ls_res = []

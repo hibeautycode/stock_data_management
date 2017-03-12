@@ -1,11 +1,15 @@
-import sys, os, time, threading, datetime, re
+import datetime
+import os
+import sys
+import threading
+import time
+
 sys.path.append( '../../stock' )
-from utils.utils import Utils, SAVE_DATA, LOG, ERROR
+from common.utils import Utils, SAVE_DATA, LOG, ERROR
 import tushare as ts
 import pandas as pd
-import numpy as np
 #wmcloud pw qingxue@1990
-from multiprocessing import Queue, Process
+from multiprocessing import Queue
 import common.base
 
 '''--------------- Data class ---------------'''

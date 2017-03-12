@@ -1,10 +1,11 @@
+import datetime
+import sys
 import numpy as np
-import sys, os, datetime
 sys.path.append( '../../stock' )
 from data.data import Data
-from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
+from common.utils import Utils
 import pandas as pd
-from multiprocessing import Queue, Process
+from multiprocessing import Queue
 from factor.base import Base
 
 class Profit( Base ):

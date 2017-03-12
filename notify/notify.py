@@ -1,7 +1,9 @@
-import sys, os
+import os
+import sys
+
 sys.path.append( '../../stock' )
 from data.data import Data
-from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
+from common.utils import Utils, LOG, ERROR, SEND_EMAIL
 from model.spill_wave import Analyse
 from model.basics import Basics
 from factor.profit import Profit
@@ -9,7 +11,7 @@ from factor.pe import Pe
 from query.query import Query
 from pandas import DataFrame
 from time import sleep
-from multiprocessing import Queue, Process
+from multiprocessing import Process
 import operator as op
 import numpy as np
 

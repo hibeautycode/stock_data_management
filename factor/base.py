@@ -1,6 +1,8 @@
-import sys, os
+import os
+import sys
+
 sys.path.append( '../../stock' )
-from utils.utils import Utils, LOG, ERROR
+from common.utils import Utils
 import common.base
 
 class Base( common.base.Base ):

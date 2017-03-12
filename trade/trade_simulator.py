@@ -1,7 +1,9 @@
-import sys, os
+import os
+import sys
+
 sys.path.append( '../../stock' )
 from data.data import Data
-from utils.utils import Utils, LOG, ERROR, SEND_EMAIL
+from common.utils import Utils, LOG, ERROR
 from model.spill_wave import Analyse
 from model.basics import Basics
 from pandas import DataFrame
