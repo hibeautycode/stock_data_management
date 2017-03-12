@@ -90,12 +90,11 @@ class Profit( Base ):
 			profit_grow = ( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ) ) \
 				/ factor_mutation / float( 0.3 + np.var( arr_grow_ratio ) ) * ( 1.0 - num_minus_net_profit / 20 )
 
-			if code in [ '002196', '300376', '002460', '002230', '002394' ]:
-				LOG( '{3} grow:{0}, factor_mutation:{1}, minus:{2}, var:{4}, ls_grow_ratio:{5}\n'.format( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ), \
-					factor_mutation, ( 1.0 - num_minus_net_profit / 30 ), code, float( 0.3 + np.var( arr_grow_ratio ) ), \
-					ls_grow_ratio ) )
+			# if code in [ '002196', '300376', '002460', '002230', '002394' ]:
+			# 	LOG( '{3} grow:{0}, factor_mutation:{1}, minus:{2}, var:{4}, ls_grow_ratio:{5}\n'.format( 1.0 + float( np.dot( arr_grow_ratio, arr_weight ) ), \
+			# 		factor_mutation, ( 1.0 - num_minus_net_profit / 30 ), code, float( 0.3 + np.var( arr_grow_ratio ) ), \
+			# 		ls_grow_ratio ) )
 
-			# LOG( '{0} {1} {2}'.format( code, profit_grow, ls_weight ) )
 			name = df_tmp.iloc[ 0 ][ 'name' ]
 			ls_tmp.append( [ code, name, profit_grow, np.nan ] )
 
