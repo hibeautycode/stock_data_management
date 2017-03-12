@@ -59,7 +59,7 @@ class Pe( Base ):
 			self.df_average_industry_pe.loc[ self.df_average_industry_pe.index.size ] = [ industry, average_pe ]
 
 		self.df_average_industry_pe = self.df_average_industry_pe.set_index( 'industry' )
-		Base.save_data( self, self.df_average_industry_pe, self.average_industry_pe_file )		
+		self.save_data( self.df_average_industry_pe, self.average_industry_pe_file )
 	
 	@Utils.func_timer
 	def calc_average_concept_pe( self, df_stock_basics, df_concept_classified ):
@@ -95,7 +95,7 @@ class Pe( Base ):
 			self.df_average_concept_pe.loc[ self.df_average_concept_pe.index.size ] = [ concept, average_pe ]
 
 		self.df_average_concept_pe = self.df_average_concept_pe.set_index( 'concept' )
-		Base.save_data( self, self.df_average_concept_pe, self.average_concept_pe_file )
+		self.save_data( self.df_average_concept_pe, self.average_concept_pe_file )
 
 	@Utils.func_timer
 	def calc_industry_pe_rank( self, df_stock_basics, df_industry_classified ):
@@ -137,7 +137,7 @@ class Pe( Base ):
 			for code in tmp_df_pe_rank.index:
 				self.df_industry_pe_rank[ 'rank_pe' ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 	
-		Base.save_data( self, self.df_industry_pe_rank, self.industry_pe_rank_file )
+		self.save_data( self.df_industry_pe_rank, self.industry_pe_rank_file )
 
 	@Utils.func_timer
 	def calc_concept_pe_rank( self, df_stock_basics, df_concept_classified ):
@@ -190,7 +190,7 @@ class Pe( Base ):
 					name_rank = '_'.join( [ 'rank_pe', str( id_rank ) ] )
 				self.df_concept_pe_rank[ name_rank ][ code ] = '/'.join( [ str( int( tmp_df_pe_rank.loc[ code ][ 'pe' ] ) ), str( num_code ) ] )
 			
-		Base.save_data( self, self.df_concept_pe_rank, self.concept_pe_rank_file )
+		self.save_data( self.df_concept_pe_rank, self.concept_pe_rank_file )
 
 	def calc_pe( self ):
 
@@ -205,20 +205,8 @@ class Pe( Base ):
 		df_concept_classified = Data().get_concept_classified_data()
 		df_concept_classified = df_concept_classified.set_index( 'code' )
 
-		list_process = []
-		list_process.append( Process( target = self.calc_average_industry_pe, \
-			args=( df_stock_basics, df_industry_classified ) ) )
-		list_process.append( Process( target = self.calc_average_concept_pe, \
-			args=( df_stock_basics, df_concept_classified ) ) )
-		list_process.append( Process( target = self.calc_industry_pe_rank, \
-			args=( df_stock_basics, df_industry_classified ) ) )
-		list_process.append( Process( target = self.calc_concept_pe_rank, \
-			args=( df_stock_basics, df_concept_classified ) ) )
-
-		for process in list_process:
-			process.start()
-		for process in list_process:
-			process.join()
+		Base.multiprocessing_for_multi_func( [ self.calc_industry_pe_rank, self.calc_concept_pe_rank ], \
+			[ ( df_stock_basics, df_industry_classified ), ( df_stock_basics, df_concept_classified ) ])
 
 	def get_average_industry_pe( self ):
 		return Utils.read_data( self.average_industry_pe_file )

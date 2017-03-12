@@ -6,9 +6,10 @@ import pandas as pd
 import numpy as np
 #wmcloud pw qingxue@1990
 from multiprocessing import Queue, Process
+import common.base
 
 '''--------------- Data class ---------------'''
-class Data():
+class Data( common.base.Base ):
 
 	def __init__( self, date = None ):
 	
@@ -565,25 +566,21 @@ class Data():
 		if not os.path.exists( self.__main_dir ):
 			os.mkdir( self.__main_dir )
 		self.update_stock_basics()
-	
-		list_process = []		
-		list_process.append( Process( target = self.update_quarter_report_data ) )
-		list_process.append( Process( target = self.update_profit_data ) ) # include update_growth_data
-		list_process.append( Process( target = self.update_growth_data ) )
-		list_process.append( Process( target = self.update_operation_data ) )
-		list_process.append( Process( target = self.update_debtpaying_data ) )
-		list_process.append( Process( target = self.update_cashflow_data ) )
-		list_process.append( Process( target = self.update_forcast_quarter_report_data ) )
-		list_process.append( Process( target = self.update_k_line_data ) )
-		list_process.append( Process( target = self.update_divi_data ) )
-		list_process.append( Process( target = self.update_restrict_stock_data ) )
-		list_process.append( Process( target = self.update_concept_classified ) )
-		list_process.append( Process( target = self.update_industry_classified ) )
-		
-		for process in list_process:
-			process.start()
-		for process in list_process:
-			process.join()	
+
+		ls_target = [ self.update_quarter_report_data, \
+					  self.update_profit_data, \
+					  self.update_growth_data, \
+					  self.update_operation_data, \
+					  self.update_debtpaying_data, \
+					  self.update_cashflow_data, \
+					  self.update_forcast_quarter_report_data, \
+					  self.update_k_line_data, \
+					  self.update_divi_data, \
+					  self.update_restrict_stock_data, \
+					  self.update_concept_classified, \
+					  self.update_industry_classified ]
+		common.base.Base.multiprocessing_for_multi_func( ls_target )
+
 	'''--------------- custom query func ---------------'''
 	@Utils.func_timer	
 	def get_all_stock_data( self ):

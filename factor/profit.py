@@ -112,43 +112,15 @@ class Profit( Base ):
 			set_code.add( code )
 
 		list_code = list( set_code )
-		num_stock = len( list_code )
-
-		list_process = []
 		queue_process = Queue()
 
-		for n in range( num_process ):
-			list_process.append( Process( target = self.sub_calc_profit_grow, \
-				args=( list_code, int( num_stock  / num_process ) * n, int( num_stock / num_process ) * ( n + 1 ), \
-					df_profit_data, queue_process ) ) )
+		ls_res = Base.multiprocessing_for_single_func( self.sub_calc_profit_grow, \
+			{ 'list_code':list_code, 'df_profit_data':df_profit_data, 'queue':queue_process }, \
+			num_process )
 
-			if len( list_process ) == 3:
+		for ls in ls_res:
+			self.df_profit_grow.loc[ self.df_profit_grow.index.size ] = ls
 
-				for process in list_process:
-					process.start()
-				for process in list_process:
-					process.join()	
-
-				list_process = []	
-
-				while not queue_process.empty():
-					ls_get = queue_process.get()
-					for ls in ls_get:
-						self.df_profit_grow.loc[ self.df_profit_grow.index.size ] = ls
-
-		list_process.append( Process( target = self.sub_calc_profit_grow, \
-			args=( list_code, int( num_stock / num_process ) * num_process, num_stock, \
-				df_profit_data, queue_process  ) ) )
-
-		for process in list_process:
-			process.start()
-		for process in list_process:
-			process.join()
-
-		while not queue_process.empty():
-			ls_get = queue_process.get()
-			for ls in ls_get:
-				self.df_profit_grow.loc[ self.df_profit_grow.index.size ] = ls
 		# df_profit_grow[ 'profit_grow' ] 归一化处理
 		self.df_profit_grow[ 'profit_grow' ] = 100.0 * self.df_profit_grow[ 'profit_grow' ] / self.df_profit_grow[ 'profit_grow' ].max()
 		self.df_profit_grow = self.df_profit_grow.sort_values( by = [ 'profit_grow' ], axis = 0, ascending = False )
@@ -161,7 +133,7 @@ class Profit( Base ):
 				self.df_profit_grow[ 'rank' ][ index ] = '/'.join( [ str( int( tmp_profit_grow_rank[ 'profit_grow' ][ index ] ) ),\
 														str( self.df_profit_grow.index.size ) ] )
 			except: pass
-		Base.save_data( self, self.df_profit_grow, self.profit_grow_file )
+		self.save_data( self.df_profit_grow, self.profit_grow_file )
 
 	def get_profit_grow( self ):
 		return Utils.read_data( self.profit_grow_file )
