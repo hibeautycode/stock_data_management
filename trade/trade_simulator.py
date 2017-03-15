@@ -71,7 +71,7 @@ class Trade_Simulator():
 							 * float( self.df_position.loc[ index ][ 'position' ] ) + float( self.df_trade.loc[ self.df_trade.index.size - 1 ][ 'total_earn' ] ) )
 						self.df_trade.loc[ self.df_trade.index.size ] = [ ' '.join( [ Utils.cur_date(), Utils.cur_time() ] ), code, name, 'sell', \
 							self.df_position.loc[ index ][ 'position' ], total_earn, self.remain_money ]
-						self.df_position.drop( index )
+						self.df_position = self.df_position.drop( index )
 						continue
 				self.df_position[ 'earn' ][ index ] = '{0:.2f}'.format( ( float( df_realtime_quotes[ 'price' ] ) - float( self.df_position.loc[ index ][ 'cost_price' ] ) ) \
 					* float( self.df_position.loc[ index ][ 'position' ] ) )
