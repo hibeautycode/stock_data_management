@@ -116,7 +116,7 @@ class Profit( Base ):
 		queue_process = Queue()
 
 		ls_res = Base.multiprocessing_for_single_func( self.sub_calc_profit_grow, \
-			{ 'list_code':list_code, 'df_profit_data':df_profit_data, 'queue':queue_process }, \
+			{ 'list_code':list_code, 'df_data':df_profit_data, 'queue':queue_process }, \
 			num_process )
 
 		for ls in ls_res:

@@ -31,11 +31,13 @@ class Utils():
 		pass
 	
 	def parse_date_to_ymd( date ):
-		
-		pattern = re.compile( '[-_\s]+' )
-		list_res = re.split( pattern, date )
-		quarter = int( ( int( list_res[1] ) - 1 ) / 3 + 1 )	
-		list_res.append( quarter )		
+		try:
+			pattern = re.compile( '[-_\s]+' )
+			list_res = re.split( pattern, date )
+			quarter = int( ( int( list_res[1] ) - 1 ) / 3 + 1 )
+			list_res.append( quarter )
+		except:
+			return None
 		return list_res
 
 	def now2market_morning_time():

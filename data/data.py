@@ -392,7 +392,7 @@ class Data( common.base.Base ):
 			return Utils.read_data( cur_stock_k_line_file )
 		else:
 			ERROR( cur_stock_k_line_file + ' not exists' )
-			exit()
+			return pd.DataFrame()
 			
 	def get_k_line_date_by_reverse_days( self, code, reverse_days ):
 		k_data = self.get_k_line_data( code )

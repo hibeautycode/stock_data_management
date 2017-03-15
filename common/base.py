@@ -21,7 +21,7 @@ class Base( object ):
 		for n in range( num_process ):
 			if 'list_code' in dict_func_args:
 				func_args = ( ls_code, int( num_code  / num_process ) * n, int( num_code / num_process ) * ( n + 1 ), \
-					dict_func_args[ 'df_profit_data' ], dict_func_args[ 'queue' ] )
+					dict_func_args[ 'df_data' ], dict_func_args[ 'queue' ] )
 			list_process.append( Process( target = target_func, args = func_args ) )
 
 			if len( list_process ) == 3:
@@ -41,7 +41,7 @@ class Base( object ):
 
 		if 'list_code' in dict_func_args:
 			func_args = ( ls_code, int( num_code  / num_process ) * num_process, num_code, \
-				dict_func_args[ 'df_profit_data' ], dict_func_args[ 'queue' ] )
+				dict_func_args[ 'df_data' ], dict_func_args[ 'queue' ] )
 		list_process.append( Process( target = target_func, args = func_args ) )
 
 		for process in list_process:

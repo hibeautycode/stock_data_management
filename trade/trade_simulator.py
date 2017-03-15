@@ -4,7 +4,7 @@ import sys
 sys.path.append( '../../stock' )
 from data.data import Data
 from common.utils import Utils, LOG, ERROR
-from model.spill_wave import Analyse
+import model.spill_wave
 from model.basics import Basics
 from pandas import DataFrame
 import pandas as pd
@@ -19,7 +19,7 @@ class Trade_Simulator():
 		self.__file_path_trade = '../trade/position/simulate_trade_flow.xlsx'
 		self.__file_path_position = '../trade/position/simulate_position.xlsx'
 		if model == 'spill_wave':
-			self.df_model_stock = Utils.read_data( Analyse().spill_wave_stock_file )
+			self.df_model_stock = Utils.read_data( model.spill_wave.Analyse().spill_wave_stock_file )
 		else:
 			ERROR( 'model select error.' )
 		self.initial_fund = 200000.0	# 初始投资额
@@ -97,7 +97,7 @@ class Trade_Simulator():
 							if float( df_model_basics[ 'rank_profit_grow' ][ int( code ) ].split( '/' )[ 0 ] ) / \
 								float( df_model_basics[ 'rank_profit_grow' ][ int( code ) ].split( '/' )[ 1 ] ) >= 0.5:
 								continue
-							LOG( '{0} {1}'.format( code, df_model_basics[ 'rank_profit_grow' ][ int( code ) ].split( '/' ) ) )
+							# LOG( '{0} {1}'.format( code, df_model_basics[ 'rank_profit_grow' ][ int( code ) ].split( '/' ) ) )
 						except:pass
 
 						buy_hand_num = 0
@@ -105,7 +105,7 @@ class Trade_Simulator():
 						if 100 * float( df_realtime_quotes[ 'price' ] ) <= self.remain_money:
 
 							buy_hand_num = int( min( self.initial_fund * float( self.df_model_stock.loc[ index ][ 'expect_earn_rate' ] ) * 0.5 / float( df_realtime_quotes[ 'price' ] ) / 100, \
-											self.max_buy_each_stock / float( df_realtime_quotes[ 'price' ] ) / 100 ) )
+											self.max_buy_each_stock / float( df_realtime_quotes[ 'price' ] ) / 100, self.remain_money / float( df_realtime_quotes[ 'price' ] ) / 100 ) )
 							if self.df_trade.index.size >= 1:
 								total_earn = self.df_trade.loc[ self.df_trade.index.size - 1 ][ 'total_earn' ]
 							else:

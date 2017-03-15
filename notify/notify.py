@@ -4,7 +4,7 @@ import sys
 sys.path.append( '../../stock' )
 from data.data import Data
 from common.utils import Utils, LOG, ERROR, SEND_EMAIL
-from model.spill_wave import Analyse
+import model.spill_wave
 from model.basics import Basics
 from factor.profit import Profit
 from factor.pe import Pe
@@ -117,7 +117,7 @@ class Notify():
 
 	def notify_investment_opportunity( self ):
 		
-		df_spill_wave_stock = Utils.read_data( Analyse().spill_wave_stock_file )
+		df_spill_wave_stock = Utils.read_data( model.spill_wave.Analyse().spill_wave_stock_file )
 		df_model_basics = Basics().get_basics().set_index( 'code' )
 		
 		while True:
@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
 	if int( Utils.cur_time().split( ':' )[ 0 ] ) < 18:
 	# 18点之前，采用前一个交易日的分析结果
-		analyse_class = Analyse()
+		analyse_class = model.spill_wave.Analyse()
 
 		list_process = []
 		list_process.append( Process( target = Notify().notify_investment_opportunity ) )
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 	# 当日18点之后方可更新数据	
 		file_date = Utils.cur_date()
 		Data( file_date ).update_all()
-		analyse_class = Analyse( file_date )
+		analyse_class = model.spill_wave.Analyse( file_date )
 		# analyse_class.statistics()
 		
 		list_process = []
