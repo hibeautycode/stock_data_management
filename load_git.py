@@ -30,4 +30,4 @@ class load_git():
 
 if __name__ == '__main__':
 
-	commit_git().move_all()
+	load_git().move_all()
