@@ -13,12 +13,12 @@ from time import sleep
 
 class Trade_Simulator():
 
-	def __init__( self, model = 'spill_wave' ):
+	def __init__( self, name_model = 'spill_wave' ):
 
 		self.root_file_path = '../trade/position/'
 		self.__file_path_trade = '../trade/position/simulate_trade_flow.xlsx'
 		self.__file_path_position = '../trade/position/simulate_position.xlsx'
-		if model == 'spill_wave':
+		if name_model == 'spill_wave':
 			self.df_model_stock = Utils.read_data( model.spill_wave.Analyse().spill_wave_stock_file )
 		else:
 			ERROR( 'model select error.' )

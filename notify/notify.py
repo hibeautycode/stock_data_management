@@ -36,8 +36,8 @@ class Notify():
 				# LOG( 'query code:{0}'.format( ls_code ) )
 
 				if not len( ls_code ) or op.eq( ls_code_queried, ls_code ):
-				# 每3分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
-					sleep( 180 )
+				# 每n分钟查一次邮箱是否有查询,没有或查询代码没有更新，则继续等待
+					sleep( 60 )
 					continue
 
 				ls_code_queried = ls_code
@@ -48,8 +48,8 @@ class Notify():
 					Utils.send_email( info, 'stock info ' + code )
 					# LOG( 'send stock info {0}'.format( code ) )
 
-				# 每3分钟查一次邮箱是否有查询
-				sleep( 180 )
+				# 每n分钟查一次邮箱是否有查询
+				sleep( 60 )
 
 
 	def notify_realtime_earnings( self ):
@@ -109,10 +109,10 @@ class Notify():
 			content_notify += 'total_earn:{0:.2f}'.format( total_earn )
 			if SEND_EMAIL:
 				Utils.send_email( content_notify, 'position notification' )
-				sleep( 60 * 5 )
+				sleep( 60 * 10 )
 			else:
 				LOG( content_notify )
-				sleep( 60 )
+				sleep( 60 * 10 )
 
 
 	def notify_investment_opportunity( self ):
@@ -178,7 +178,7 @@ class Notify():
 				LOG( '*********************************' )			
 				LOG( content_notify )
 				LOG( '*********************************' )										
-				sleep( 120 )
+				sleep( 60 * 5 )
 
 if __name__ == '__main__':
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
 		list_process = []
 		list_process.append( Process( target = Notify().notify_investment_opportunity ) )
-		list_process.append( Process( target = Notify().notify_realtime_earnings ) )
+		# list_process.append( Process( target = Notify().notify_realtime_earnings ) )
 		list_process.append( Process( target = Notify().serve_query_request ) )
 		
 		for process in list_process:
