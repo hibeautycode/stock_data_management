@@ -71,8 +71,8 @@ class Utils():
 		return function_timer
 			
 
-	def send_email( content, header = 'stock notification', from_addr = 'xingzhewujiang1990@126.com', password = 'qingxue1990', \
-			smtp_server = 'smtp.126.com', to_addr = '504571914@qq.com' ):
+	def send_email( content, header = 'stock notification', from_addr = '', password = '', \
+			smtp_server = 'smtp.126.com', to_addr = '' ):
 
 		def _format_addr( s ):
 			name, addr = parseaddr( s )
@@ -91,10 +91,10 @@ class Utils():
 		except:
 			server.quit()
 			ERROR( 'fail send_email from {0}'.format( from_addr ) )
-			Utils.send_email( content, header, from_addr = 'qiyubi@126.com', password = 'qiyubi1990', \
-				smtp_server = 'smtp.126.com', to_addr = '504571914@qq.com' )
+			Utils.send_email( content, header, from_addr = '', password = '', \
+				smtp_server = 'smtp.126.com', to_addr = '' )
 
-	def receive_email_query_code( email_addr = 'xingzhewujiang1990@126.com', password = 'qingxue1990', pop3_server = 'pop.126.com' ):
+	def receive_email_query_code( email_addr = '', password = '', pop3_server = 'pop.126.com' ):
  
 		# 解码头信息 
 		def decode_str( s ):  
